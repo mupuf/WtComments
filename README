@@ -1,0 +1,22 @@
+# Wt Comments
+
+Wt Comments is a project that was written in order to allow users to comment on static websites (such as http://www.mupuf.org).
+
+The goal was to create a minimal and self-standing binary that would serve user's comments as needed. These comments are to be stored in a JSON file.
+
+I decided to write this project in Wt, a C++ Web Framework, because I didn't want a dependency to scripting engines such as Python, Ruby or PHP.
+
+## Installation
+
+In order to use Wt Comments, you'll need to first download tiny MCE:
+wget http://github.com/downloads/tinymce/tinymce/tinymce_3.5.7.zip
+
+Then, extract tiny MCE and copy the inner tiny_mce folder to /usr/share/Wt/resources/
+The file /usr/share/Wt/resources/tiny_mce/tiny_mce.js should now exist.
+
+## Execution
+
+Please launch this project with the following command line:
+$ ./wtcomments --docroot /usr/share/Wt/ --http-address 0.0.0.0 --http-port 9090 
+
+Then open the url http://127.0.0.1:9090 and enjoy!
