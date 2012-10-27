@@ -7,6 +7,8 @@
 
 #include "commentsdb.h"
 
+#include <memory>
+
 class View : public Wt::WApplication
 {
 private:
@@ -14,7 +16,7 @@ private:
 	Wt::WTextEdit *_editMsg;
 	Wt::WBoxLayout *layout;
 
-	CommentsDB db;
+	std::auto_ptr<CommentsDB> db;
 
 	std::string getValueFromEnv(const Wt::WEnvironment& env,
 				const std::string &key,

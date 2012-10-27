@@ -55,11 +55,11 @@ void View::postComment()
 	/* reset the text */
 	_editMsg->setText(Wt::WString());
 
-	db.postComment(comment);
+	db->postComment(comment);
 }
 
 View::View(const Wt::WEnvironment& env, Wt::WServer &server, const Wt::WString &thread) :
-	Wt::WApplication(env), db(server, thread, boost::bind(&View::drawComment, this, _1))
+	Wt::WApplication(env)
 {
 	Wt::WApplication::instance()->enableUpdates(true);
 	setCommentThread(thread);
@@ -91,5 +91,7 @@ View::View(const Wt::WEnvironment& env, Wt::WServer &server, const Wt::WString &
 
 	root()->addWidget(t);
 
+	/* Init the DB */
+	db.reset(new CommentsDB(server, thread, boost::bind(&View::drawComment, this, _1)));
 }
 

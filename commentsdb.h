@@ -29,6 +29,15 @@ private:
 	static boost::recursive_mutex thread_clients_mutex;
 	static std::map<Wt::WString, std::vector<Client> > thread_clients;
 
+	static boost::recursive_mutex comments_mutex;
+
+	std::string getDBDirectory() const;
+	std::string getDBFile() const;
+
+	Comment readJSonComment(const Wt::Json::Object &object);
+	std::vector<Comment> readCommentsFromFile();
+	void saveNewComment(const Comment &comment);
+
 public:
 	CommentsDB(Wt::WServer &server, const Wt::WString &thread, NewCommentCallback cb);
 	~CommentsDB();
