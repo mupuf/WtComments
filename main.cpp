@@ -1,11 +1,51 @@
-#include "wtcomments.h"
+#include "view.h"
 
-Wt::WApplication *createApplication(const Wt::WEnvironment& env)
+#include <Wt/WEnvironment>
+#include <Wt/WServer>
+#include <signal.h>
+
+std::string getValueFromEnv(const Wt::WEnvironment& env,
+		const std::string &key,
+		const std::string &defaultValue)
 {
-    return new WtComments(env);
+	std::vector<std::string> param = env.getParameterValues(key);
+	if (param.size() > 0) {
+		return param[0];
+	} else
+		return defaultValue;
+}
+
+Wt::WApplication *createApplication(const Wt::WEnvironment& env,
+					Wt::WServer &server)
+{
+	std::string thread = getValueFromEnv(env, "thread", "default");
+	return new View(env, server, thread);
 }
 
 int main(int argc, char **argv)
 {
-    return Wt::WRun(argc, argv, &createApplication);
+	try {
+		Wt::WServer server(argv[0]);
+
+		server.setServerConfiguration(argc, argv, WTHTTP_CONFIGURATION);
+
+		server.addEntryPoint(Wt::Application,
+				     boost::bind(createApplication, _1,
+				                 boost::ref(server)));
+		if (server.start()) {
+			int sig = Wt::WServer::waitForShutdown(argv[0]);
+
+			std::cerr << "Shutdown (signal = " << sig << ")" << std::endl;
+			server.stop();
+
+			if (sig == SIGHUP)
+				Wt::WServer::restart(argc, argv, environ);
+		}
+	} catch (Wt::WServer::Exception& e) {
+		std::cerr << e.what() << "\n";
+		return 1;
+	} catch (std::exception& e) {
+		std::cerr << "exception: " << e.what() << "\n";
+		return 1;
+	}
 }

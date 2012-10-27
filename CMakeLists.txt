@@ -42,9 +42,12 @@ SET(Boost_ADDITIONAL_VERSIONS
   "1.50" "1.51" "1.52" "1.53" "1.54" "1.55" "1.56" "1.57" "1.58" "1.59")
 SET(Boost_USE_MULTITHREADED ON)
 SET(Boost_USE_STATIC_LIBS ON)
-find_package(Boost 1.35 COMPONENTS signals REQUIRED)
+find_package(Boost 1.35 COMPONENTS signals thread system REQUIRED)
 link_directories ( ${Boost_LIBRARY_DIRS} )
 include_directories ( ${Boost_INCLUDE_DIRS} )
+
+# PThread
+find_package (Threads REQUIRED)
 
 # Wt (I would advise to compile a minimal Wt to lower dependencies)
 include(FindWt REQUIRED)
@@ -52,4 +55,4 @@ include(FindWt REQUIRED)
 # Output binary
 file(GLOB wtcomments_SOURCES "*.cpp" "*.h")
 add_executable(wtcomments ${wtcomments_SOURCES})
-target_link_libraries(wtcomments ${Wt_LIBRARY} ${Wt_HTTP_LIBRARY} ${Boost_LIBRARIES})
+target_link_libraries(wtcomments ${Wt_LIBRARY} ${Wt_HTTP_LIBRARY} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})

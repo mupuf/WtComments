@@ -1,4 +1,4 @@
-#include "wtcomments.h"
+#include "view.h"
 
 #include <Wt/WLength>
 #include <Wt/WBreak>
@@ -6,58 +6,46 @@
 #include <Wt/WLineEdit>
 #include <Wt/WPushButton>
 #include <Wt/WText>
-#include <Wt/WEnvironment>
 #include <Wt/WPanel>
 #include <Wt/WTextEdit>
 #include <Wt/WDate>
 #include <Wt/WTemplate>
 #include <Wt/WMessageBox>
+#include <Wt/WApplication>
 
-std::string WtComments::getValueFromEnv(const Wt::WEnvironment& env,
-		const std::string &key,
-		const std::string &defaultValue) const
-{
-	std::vector<std::string> param = env.getParameterValues(key);
-	if (param.size() > 0) {
-		return param[0];
-	} else
-		return defaultValue;
-}
-
-void WtComments::setCommentThread(std::string thread)
+void View::setCommentThread(const Wt::WString &thread)
 {
 	setTitle("Comments for the thread \"" + thread + "\"");
 }
 
-void WtComments::drawComment(const Wt::WString &author,
-				int julianDay,
-				const Wt::WString &text)
+void View::drawComment(const Comment &comment)
 {
 	Wt::WString title = Wt::WString("Posted the ");
-	title += Wt::WDate::fromJulianDay(julianDay).toString();
+	title += comment.date().toString();
 	title += Wt::WString(" by ");
-	title += Wt::WString(author);
+	title += comment.author();
 
 	Wt::WPanel *panel = new Wt::WPanel();
 	panel->setTitleBar(true);
 	panel->setTitle(title);
-	panel->setCentralWidget(new Wt::WText(text));
+	panel->setCentralWidget(new Wt::WText(comment.msg()));
 	layout->addWidget(panel);
+
+	Wt::WApplication::instance()->triggerUpdate();
 }
 
-void WtComments::postComment()
+void View::postComment()
 {
-	Wt::WString author = _editAuthor->text();
-	Wt::WString text = _editText->text();
+	Comment comment(_editAuthor->text(), _editMsg->text());
 
-	if (author.value().length() == 0) {
+	if (_editAuthor->text().value().length() == 0) {
 		Wt::WMessageBox::show("Error while posting the comment",
 				"The author name is missing",
 				Wt::Ok);
 		return;
 	}
 
-	if (text.value().length() < 10) {
+	if (_editMsg->text().value().length() < 10) {
 		Wt::WMessageBox::show("Error while posting the comment",
 				"The text submited is too short.<br/><br/>Please write some text",
 				Wt::Ok);
@@ -65,15 +53,16 @@ void WtComments::postComment()
 	}
 
 	/* reset the text */
-	_editText->setText(Wt::WString());
+	_editMsg->setText(Wt::WString());
 
-	drawComment(author, Wt::WDate::currentServerDate().toJulianDay(), text);
+	db.postComment(comment);
 }
 
-WtComments::WtComments(const Wt::WEnvironment& env) :
-	Wt::WApplication(env)
+View::View(const Wt::WEnvironment& env, Wt::WServer &server, const Wt::WString &thread) :
+	Wt::WApplication(env), db(server, thread, boost::bind(&View::drawComment, this, _1))
 {
-	setCommentThread(getValueFromEnv(env, "thread", "default"));
+	Wt::WApplication::instance()->enableUpdates(true);
+	setCommentThread(thread);
 
 	/* Comments section */
 	Wt::WContainerWidget *w = new Wt::WContainerWidget(root());
@@ -82,10 +71,10 @@ WtComments::WtComments(const Wt::WEnvironment& env) :
 
 	/* Add a new comment */
 	Wt::WPushButton *button = new Wt::WPushButton("Send");
-	button->clicked().connect(this, &WtComments::postComment);
+	button->clicked().connect(this, &View::postComment);
 	_editAuthor = new Wt::WLineEdit();
-	_editText = new Wt::WTextEdit();
-	_editText->setHeight(300);
+	_editMsg = new Wt::WTextEdit();
+	_editMsg->setHeight(300);
 
 	Wt::WTemplate *t = new Wt::WTemplate();
 	t->setTemplateText("<hr width=\"75%\" />" \
@@ -97,7 +86,7 @@ WtComments::WtComments(const Wt::WEnvironment& env) :
 		"</div>"
 	);
 	t->bindWidget("author-edit", _editAuthor);
-	t->bindWidget("text-edit", _editText);
+	t->bindWidget("text-edit", _editMsg);
 	t->bindWidget("send_btn", button);
 
 	root()->addWidget(t);
