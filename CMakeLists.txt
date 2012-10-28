@@ -28,11 +28,11 @@ add_definitions(-DPROJECT_VERSION="${PROJECT_VERSION}")
 
 # Compiler flags
 if(CMAKE_COMPILER_IS_GNUCXX)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 endif()
 
 if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "Release")
+	set(CMAKE_BUILD_TYPE "Release")
 endif(NOT CMAKE_BUILD_TYPE)
 
 # Boost
@@ -51,8 +51,10 @@ find_package (Threads REQUIRED)
 
 # Wt (I would advise to compile a minimal Wt to lower dependencies)
 include(FindWt REQUIRED)
+# Select either the built-in http server or fgci in Wt
+SET (Wt_CONNECTOR "wthttp" CACHE STRING "Connector used (wthttp or wtfcgi)")
 
 # Output binary
 file(GLOB wtcomments_SOURCES "*.cpp" "*.h")
 add_executable(wtcomments ${wtcomments_SOURCES})
-target_link_libraries(wtcomments ${Wt_LIBRARY} ${Wt_HTTP_LIBRARY} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(wtcomments ${Wt_LIBRARY} ${Wt_CONNECTOR} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
