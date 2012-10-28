@@ -12,6 +12,7 @@
 #include <Wt/WTemplate>
 #include <Wt/WMessageBox>
 #include <Wt/WApplication>
+#include <Wt/WOverlayLoadingIndicator>
 
 void View::setCommentThread(const Wt::WString &thread)
 {
@@ -64,6 +65,8 @@ View::View(const Wt::WEnvironment& env, Wt::WServer &server, const Wt::WString &
 	Wt::WApplication(env)
 {
 	Wt::WApplication::instance()->enableUpdates(true);
+	Wt::WApplication::instance()->setLoadingIndicator(new Wt::WOverlayLoadingIndicator());
+
 	setCommentThread(thread);
 
 	/* Comments section */
