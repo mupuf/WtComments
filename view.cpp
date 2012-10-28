@@ -21,12 +21,8 @@ void View::setCommentThread(const Wt::WString &thread)
 
 void View::drawComment(const Comment &comment)
 {
-	Wt::WString title = Wt::WString("Posted on the ");
-	title += comment.date().toString();
-	title += Wt::WString(" by <b>");
-	title += comment.author();
-	title += Wt::WString("</b> at ");
-	title += comment.time().toString();
+	Wt::WString title = Wt::WString("<span class=\"comment_author\">{1}</span> on the {2} {3} said:");
+	title = title.arg(comment.author()).arg(comment.date().toString("dddd MMMM d yyyy")).arg(comment.time().toString());
 
 	Wt::WPanel *panel = new Wt::WPanel();
 	panel->setTitleBar(true);
@@ -64,10 +60,15 @@ void View::postComment()
 View::View(const Wt::WEnvironment& env, Wt::WServer &server, const Wt::WString &thread) :
 	Wt::WApplication(env)
 {
-	Wt::WApplication::instance()->enableUpdates(true);
-	Wt::WApplication::instance()->setLoadingIndicator(new Wt::WOverlayLoadingIndicator());
+	Wt::WApplication *app = Wt::WApplication::instance();
+	app->enableUpdates(true);
+	app->setLoadingIndicator(new Wt::WOverlayLoadingIndicator());
 
 	setCommentThread(thread);
+
+	/* CSS fixups */
+	app->styleSheet().addRule(".comment_author", "font-weight:bold");
+	app->styleSheet().addRule("p", "margin: 0px");
 
 	/* Comments section */
 	Wt::WContainerWidget *w = new Wt::WContainerWidget(root());
