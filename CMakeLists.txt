@@ -51,10 +51,22 @@ find_package (Threads REQUIRED)
 
 # Wt (I would advise to compile a minimal Wt to lower dependencies)
 include(FindWt REQUIRED)
-# Select either the built-in http server or fgci in Wt
-SET (Wt_CONNECTOR "wthttp" CACHE STRING "Connector used (wthttp or wtfcgi)")
+
+# Select the connector (FCGI by default)
+option(USE_CON_HTTP "Build wt-comments with an HTTP connector instead of an FCGI one" OFF)
+if (USE_CON_HTTP)
+	SET (Wt_CONNECTOR "${Wt_HTTP_LIBRARY}")
+else (USE_CON_HTTP)
+	SET (Wt_CONNECTOR "${Wt_FCGI_LIBRARY}")
+endif (USE_CON_HTTP)
 
 # Output binary
 file(GLOB wtcomments_SOURCES "*.cpp" "*.h")
 add_executable(wtcomments ${wtcomments_SOURCES})
 target_link_libraries(wtcomments ${Wt_LIBRARY} ${Wt_CONNECTOR} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+
+message("")
+message ("-- Summary --")
+message("	Build type                             : ${CMAKE_BUILD_TYPE} (-DCMAKE_BUILD_TYPE)")
+message("	Wt connector, use HTTP instead of FCGI : ${USE_CON_HTTP} (-DUSE_CON_HTTP)")
+message ("")
