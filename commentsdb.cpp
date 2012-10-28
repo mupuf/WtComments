@@ -42,9 +42,12 @@ Comment CommentsDB::readJSonComment(const Wt::Json::Object &object)
 {
 	const Wt::WString &author = object.get("author");
 	Wt::WDate date = Wt::WDate::fromJulianDay((int)object.get("date"));
+	Wt::WTime time = Wt::WTime::fromString(object.get("time"));
 	const Wt::WString &msg = object.get("msg");
+	const Wt::WString &clientAddress = object.get("IP");
+	const Wt::WString &sessionId = object.get("sessionId");
 
-	return Comment(author, msg, date);
+	return Comment(author, msg, date, time, clientAddress, sessionId);
 }
 
 std::vector<Comment> CommentsDB::readCommentsFromFile()
@@ -109,7 +112,10 @@ void CommentsDB::saveNewComment(const Comment &comment)
 
 			db << "		{ \"author\": \"" << author;
 			db << "\", \"date\": " << comments[i].date().toJulianDay();
-			db << ", \"msg\": \"" << msg;
+			db << ", \"time\": \"" << comments[i].time().toString();
+			db << "\", \"msg\": \"" << msg;
+			db << "\", \"IP\": \"" << comments[i].clientAddress();
+			db << "\", \"sessionId\": \"" << comments[i].sessionId();
 			db << "\" }" << std::endl << std::endl << std::endl;
 		}
 

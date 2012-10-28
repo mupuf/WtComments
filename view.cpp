@@ -20,10 +20,12 @@ void View::setCommentThread(const Wt::WString &thread)
 
 void View::drawComment(const Comment &comment)
 {
-	Wt::WString title = Wt::WString("Posted the ");
+	Wt::WString title = Wt::WString("Posted on the ");
 	title += comment.date().toString();
-	title += Wt::WString(" by ");
+	title += Wt::WString(" by <b>");
 	title += comment.author();
+	title += Wt::WString("</b> at ");
+	title += comment.time().toString();
 
 	Wt::WPanel *panel = new Wt::WPanel();
 	panel->setTitleBar(true);
