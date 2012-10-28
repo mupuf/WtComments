@@ -21,7 +21,7 @@ void View::setCommentThread(const Wt::WString &thread)
 
 void View::drawComment(const Comment &comment)
 {
-	Wt::WString title = Wt::WString("<span class=\"comment_author\">{1}</span> on the {2} {3} said:");
+	Wt::WString title = Wt::WString("<span class=\"comment_author\">{1}</span> on {2} {3} said:");
 	title = title.arg(comment.author()).arg(comment.date().toString("dddd MMMM d yyyy")).arg(comment.time().toString());
 
 	Wt::WPanel *panel = new Wt::WPanel();
