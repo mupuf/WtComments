@@ -1,34 +1,64 @@
 # Wt Comments
 
-Wt Comments is a project that was written in order to allow users to comment on static websites (such as http://www.mupuf.org).
+Wt Comments is a project that was written in order to allow users to comment on
+static websites (such as http://www.mupuf.org).
 
-The goal was to create a minimal and self-standing binary that would serve user's comments as needed. These comments are to be stored in a JSON file.
+The goal was to create a minimal and self-standing binary that would serve
+user's comments as needed. These comments are to be stored in a JSON file.
 
-I decided to write this project in Wt, a C++ Web Framework, because I didn't want a dependency to scripting engines such as Python, Ruby or PHP.
+I decided to write this project in Wt, a C++ Web Framework, because I didn't
+want a dependency to scripting engines such as Python, Ruby or PHP.
 
-The program has been written with portability in mind. However, it is currently limited to Linux due to
-one simple function (getDBDirectory()). Feel free to send me patches ;)
+The program has been written with portability in mind. However, it is currently
+limited to Linux due to one simple function (getDBDirectory()). Feel free to
+send me patches ;)
 
-## Installation
+## Dependencies & Installation
+
+### Wt
+Obviously you need Wt to build and run this project. Only a "minimal" set of
+features is required (no Qt, pango, SQL databases... dependencies). You might
+want to build your own minimal version if the distribution provided one includes
+too many features.
+
+### Building
+Once Wt is installed, you can build this project with:
+$ cd wt-comments
+$ mkdir build
+$ cd build
+$ cmake ..
+$ make
 
 ### Tiny MCE
 In order to use Wt Comments, you'll need to first download tiny MCE:
-wget http://github.com/downloads/tinymce/tinymce/tinymce_3.5.7.zip
+https://github.com/tinymce/tinymce/downloads
 
-Then, extract tiny MCE and copy the inner tiny_mce folder to /usr/share/Wt/resources/
-The file /usr/share/Wt/resources/tiny_mce/tiny_mce.js should now exist.
+At least tiny MCE 3.5.7 works with with Wt 3.2.3rc1, but it should work with
+other versions:
+$ wget http://github.com/downloads/tinymce/tinymce/tinymce_3.5.7.zip
+
+Then, extract tiny MCE and copy the inner tiny_mce folder to
+/usr/share/Wt/resources/. The file /usr/share/Wt/resources/tiny_mce/tiny_mce.js
+should now exist along with other ressources.
 
 ### Database
-The comments database is stored as separate JSON files. Each file represents a comment thread.
+The comments database is stored as separated JSON files. Each file represents a
+comment thread.
 
-These files are meant to be stored in the db/ folder of wtcomments' binary's folder. Please create this folder:
+These files are meant to be stored in the db/ folder of wtcomments' binary's
+folder. Please create this folder:
 $ mkdir db/
 
-You should be ready for the first test run!
+You should now be ready for the first test run!
 
 ## Execution
 
+### Using the built-in http server in Wt
 Please launch this project with the following command line:
 $ ./wtcomments --docroot /usr/share/Wt/ --http-address 0.0.0.0 --http-port 9090 
 
 Then open the url http://127.0.0.1:9090 and enjoy!
+
+### Using fastcgi
+TODO
+
