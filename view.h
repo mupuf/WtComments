@@ -26,7 +26,7 @@ private:
 	void drawComment(const Comment &comment);
 
 public:
-	View(const Wt::WEnvironment &env, Wt::WServer &server, const Wt::WString &thread);
+	View(const Wt::WEnvironment &env, Wt::WServer &server, std::string &thread);
 };
 
 #endif // VIEW_H

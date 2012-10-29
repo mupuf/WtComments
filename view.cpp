@@ -14,6 +14,8 @@
 #include <Wt/WApplication>
 #include <Wt/WOverlayLoadingIndicator>
 
+#include "util.h"
+
 void View::setCommentThread(const Wt::WString &thread)
 {
 	setTitle("Comments for the thread \"" + thread + "\"");
@@ -57,13 +59,20 @@ void View::postComment()
 	db->postComment(comment);
 }
 
-View::View(const Wt::WEnvironment& env, Wt::WServer &server, const Wt::WString &thread) :
+View::View(const Wt::WEnvironment& env, Wt::WServer &server, std::string &thread) :
 	Wt::WApplication(env)
 {
 	Wt::WApplication *app = Wt::WApplication::instance();
 	app->enableUpdates(true);
 	app->setLoadingIndicator(new Wt::WOverlayLoadingIndicator());
 
+	/* Application root fixup */
+	std::cerr << "Application root = '" << Wt::WApplication::appRoot()
+		  << "' and doc root = '" << Wt::WApplication::docRoot()
+		  << "'" << std::endl;
+
+	/* fixup the thread to get rid of any / */
+	strReplace(thread, "/", "|");
 	setCommentThread(thread);
 
 	/* CSS fixups */
@@ -85,7 +94,7 @@ View::View(const Wt::WEnvironment& env, Wt::WServer &server, const Wt::WString &
 	Wt::WTemplate *t = new Wt::WTemplate();
 	t->setTemplateText("<hr width=\"75%\" />" \
 		"<div style=\"margin-left: auto; margin-right: auto; width: 50%\">"
-			"<h3>Add a new comment</h3>" \
+			"<h3>Send a comment</h3>" \
 			"<p><label>Author: ${author-edit}</label></p>" \
 			"${text-edit}" \
 			"${send_btn}"
