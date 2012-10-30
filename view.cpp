@@ -32,6 +32,9 @@ void View::drawComment(const Comment &comment)
 	panel->setCentralWidget(new Wt::WText(comment.msg()));
 	layout->addWidget(panel);
 
+	/* hide the no comments text */
+	_noComments->hide();
+
 	Wt::WApplication::instance()->triggerUpdate();
 }
 
@@ -78,16 +81,22 @@ View::View(const Wt::WEnvironment& env, Wt::WServer &server, std::string &thread
 	/* CSS fixups */
 	app->styleSheet().addRule(".comment_author", "font-weight:bold");
 	app->styleSheet().addRule("p", "margin: 0px");
-	app->styleSheet().addRule("#btn_send", "float: right;");
 
 	/* Comments section */
 	Wt::WContainerWidget *w = new Wt::WContainerWidget(root());
 	layout = new Wt::WBoxLayout(Wt::WBoxLayout::TopToBottom);
 	w->setLayout(layout);
 
+	/* Add a text when no comment is available */
+	_noComments = new Wt::WText("<center><h2>No comments yet</h2></center>");
+	_noComments->setId("no_comment");
+	app->styleSheet().addRule("#no_comment", "color: lightgrey;");
+	root()->addWidget(_noComments);
+
 	/* Add a new comment */
 	Wt::WPushButton *button = new Wt::WPushButton("Send");
 	button->setId("btn_send");
+	app->styleSheet().addRule("#btn_send", "float: right;");
 	button->clicked().connect(this, &View::postComment);
 	_editAuthor = new Wt::WLineEdit();
 	_editMsg = new Wt::WTextEdit();

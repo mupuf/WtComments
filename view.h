@@ -14,6 +14,7 @@ class View : public Wt::WApplication
 private:
 	Wt::WLineEdit *_editAuthor;
 	Wt::WTextEdit *_editMsg;
+	Wt::WText *_noComments;
 	Wt::WBoxLayout *layout;
 
 	std::auto_ptr<CommentsDB> db;
