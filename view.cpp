@@ -103,7 +103,7 @@ View::View(const Wt::WEnvironment& env, Wt::WServer &server, std::string &thread
 	_editMsg->setHeight(300);
 
 	Wt::WTemplate *t = new Wt::WTemplate();
-	t->setTemplateText("<hr width=\"75%\" />" \
+	t->setTemplateText("<hr width=\"80%\" />" \
 		"<div>"
 			"<h3>Send a comment</h3>" \
 			"<p><label>Author: ${author-edit}</label></p>" \
@@ -111,6 +111,8 @@ View::View(const Wt::WEnvironment& env, Wt::WServer &server, std::string &thread
 			"${send_btn}"
 		"</div>"
 	);
+	t->setId("send_comment");
+	app->styleSheet().addRule("#send_comment", "width: 90%; margin: auto;");
 	t->bindWidget("author-edit", _editAuthor);
 	t->bindWidget("text-edit", _editMsg);
 	t->bindWidget("send_btn", button);
