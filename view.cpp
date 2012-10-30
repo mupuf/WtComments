@@ -78,6 +78,7 @@ View::View(const Wt::WEnvironment& env, Wt::WServer &server, std::string &thread
 	/* CSS fixups */
 	app->styleSheet().addRule(".comment_author", "font-weight:bold");
 	app->styleSheet().addRule("p", "margin: 0px");
+	app->styleSheet().addRule("#btn_send", "float: right;");
 
 	/* Comments section */
 	Wt::WContainerWidget *w = new Wt::WContainerWidget(root());
@@ -86,6 +87,7 @@ View::View(const Wt::WEnvironment& env, Wt::WServer &server, std::string &thread
 
 	/* Add a new comment */
 	Wt::WPushButton *button = new Wt::WPushButton("Send");
+	button->setId("btn_send");
 	button->clicked().connect(this, &View::postComment);
 	_editAuthor = new Wt::WLineEdit();
 	_editMsg = new Wt::WTextEdit();
@@ -93,7 +95,7 @@ View::View(const Wt::WEnvironment& env, Wt::WServer &server, std::string &thread
 
 	Wt::WTemplate *t = new Wt::WTemplate();
 	t->setTemplateText("<hr width=\"75%\" />" \
-		"<div style=\"margin-left: auto; margin-right: auto; width: 50%\">"
+		"<div>"
 			"<h3>Send a comment</h3>" \
 			"<p><label>Author: ${author-edit}</label></p>" \
 			"${text-edit}" \
