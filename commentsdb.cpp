@@ -47,7 +47,10 @@ Comment CommentsDB::readJSonComment(const Wt::Json::Object &object)
 	const Wt::WString &clientAddress = object.get("IP");
 	const Wt::WString &sessionId = object.get("sessionId");
 
-	return Comment(author, msg, date, time, clientAddress, sessionId);
+	std::string msg_std = msg.toUTF8();
+	strReplace(msg_std, "&#34;", "\"");
+
+	return Comment(author, msg_std, date, time, clientAddress, sessionId);
 }
 
 std::vector<Comment> CommentsDB::readCommentsFromFile()
