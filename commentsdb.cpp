@@ -47,10 +47,15 @@ Comment CommentsDB::readJSonComment(const Wt::Json::Object &object)
 	const Wt::WString &clientAddress = object.get("IP");
 	const Wt::WString &sessionId = object.get("sessionId");
 
+	std::string author_std = author.toUTF8();
+	strReplace(author_std, "&#34;", "\"");
+	strReplace(author_std, "\\\\", "\\");
+
 	std::string msg_std = msg.toUTF8();
 	strReplace(msg_std, "&#34;", "\"");
+	strReplace(msg_std, "\\\\", "\\");
 
-	return Comment(author, msg_std, date, time, clientAddress, sessionId);
+	return Comment(author_std, msg_std, date, time, clientAddress, sessionId);
 }
 
 std::vector<Comment> CommentsDB::readCommentsFromFile()
@@ -74,14 +79,30 @@ std::vector<Comment> CommentsDB::readCommentsFromFile()
 		return comments;
 	}
 
-	/* parse the file we read */
-	Wt::Json::Object result;
-	Wt::Json::parse(file, result);
-	const Wt::Json::Array& jsonComments = result.get("comments");
+	if (file.size() == 0)
+		return comments;
 
-	/* parse the comments we read */
-	for (size_t i = 0; i < jsonComments.size(); i++)
-		comments.push_back(readJSonComment(jsonComments[i]));
+	/* parse the file we read */
+	try {
+		Wt::Json::Object result;
+		Wt::Json::parse(file, result);
+		const Wt::Json::Array& jsonComments = result.get("comments");
+
+		/* parse the comments we read */
+		for (size_t i = 0; i < jsonComments.size(); i++)
+			comments.push_back(readJSonComment(jsonComments[i]));
+	}
+	catch (Wt::WException error)
+	{
+		std::cerr << "Error while parsing file '" << getDBFile() << "': " << error.what() << "\n" << std::endl;
+
+		/* email */
+		Wt::WString msg, title = "Error while parsing thread '{1}':";
+		title = title.arg(client.thread);
+		msg = "{1}\n\nError = '{2}'\n\nFile = '{3}'";
+		msg.arg(title).arg(error.what()).arg(file);
+		sendEmail.send(title, msg, SendEmail::PLAIN);
+	}
 
 	return comments;
 }
@@ -111,7 +132,9 @@ void CommentsDB::saveNewComment(const Comment &comment)
 
 			/* replace the " character by it's html equivalent */
 			strReplace(author, "\"", "&#34;");
+			strReplace(msg, "\\", "\\\\");
 			strReplace(msg, "\"", "&#34;");
+			strReplace(msg, "\\", "\\\\");
 
 			db << "		{ \"author\": \"" << author;
 			db << "\", \"date\": " << comments[i].date().toJulianDay();
@@ -180,7 +203,7 @@ void CommentsDB::postComment(const Comment &comment)
 	}
 
 	/* email */
-	Wt::WString msg = "<p>Hi MuPuF.org users!</p><br/><p>The is a new comment from '{1}' on thread '{2}':</p><br/>{3}";
+	Wt::WString msg = "<p>Hi MuPuF.org users!</p><p>The is a new comment from '{1}' on thread '{2}':</p><br/>{3}";
 	msg = msg.arg(comment.author()).arg(client.thread).arg(comment.msg());
 	sendEmail.send("New comment on " + client.thread, msg);
 }

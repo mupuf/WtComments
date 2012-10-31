@@ -12,14 +12,14 @@
 #include <Wt/Json/Value>
 
 #ifndef SEND_EMAIL_DEBUG
-#define SEND_EMAIL_DEBUG 0
+#define SEND_EMAIL_DEBUG 1L
 #endif
 
 /* This file is mostly copied from http://curl.haxx.se/libcurl/c/smtp-tls.html */
 
 std::string SendEmail::getCredentialsFileName()
 {
-	return "./wt_comments_email_cred.json";
+	return "./wt_comments_email.json";
 }
 
 bool SendEmail::readConfigurationFile(Wt::WString &login, Wt::WString &pwd,
@@ -77,7 +77,7 @@ size_t SendEmail::payload_source(void *ptr, size_t size, size_t nmemb, void *use
 	return _this->emailBuffer.gcount();
 }
 
-bool SendEmail::send(const Wt::WString &title, const Wt::WString &msg)
+bool SendEmail::send(const Wt::WString &title, const Wt::WString &msg, EmailType type)
 {
 	CURL *curl;
 	CURLcode res;
@@ -96,19 +96,23 @@ bool SendEmail::send(const Wt::WString &title, const Wt::WString &msg)
 		buffer += "To: " + recipients[i].toUTF8() + "\n";
 	buffer += "From: " + from.toUTF8() + "\n",
 	buffer += "Subject: " + title.toUTF8() + "\n";
-	buffer += "Content-Type: text/html; charset=\"utf-8\"\n";
-	buffer += "Content-Transfer-Encoding: quoted-printable\n";
-	buffer += "Mime-version: 1.0\n";
-	buffer += "\n";
-	buffer += "<html>\n";
-	buffer += "<head>\n";
-	buffer += "	<meta http-equiv=3D\"Content-Type\" content=3D\"text/html; charset=3Dus-ascii\">\n";
-	buffer += "	<style type=\"text/css\">p { margin: 0; }</style>";
-	buffer += "</head>\n";
-	buffer += "<body>\n";
+	if (type == HTML) {
+		buffer += "Content-Type: text/html; charset=\"utf-8\"\n";
+		buffer += "Content-Transfer-Encoding: quoted-printable\n";
+		buffer += "Mime-version: 1.0\n";
+		buffer += "\n";
+		buffer += "<html>\n";
+		buffer += "<head>\n";
+		buffer += "	<meta http-equiv=3D\"Content-Type\" content=3D\"text/html; charset=3Dus-ascii\">\n";
+		buffer += "</head>\n";
+		buffer += "<body>\n";
+	} else
+		buffer += "Content-Type: text/plain; charset=\"utf-8\"\n";
 	buffer += msg.toUTF8();
-	buffer += "</body>\n";
-	buffer += "</html>\n";
+	if (type == HTML) {
+		buffer += "</body>\n";
+		buffer += "</html>\n";
+	}
 	emailBuffer.str(buffer);
 
 	curl = curl_easy_init();

@@ -19,9 +19,14 @@ private:
 	static size_t payload_source(void *ptr, size_t size, size_t nmemb, void *userp);
 
 public:
+	enum EmailType {
+		PLAIN,
+		HTML
+	};
+
 	SendEmail();
 
-	bool send(const Wt::WString &title, const Wt::WString &msg);
+	bool send(const Wt::WString &title, const Wt::WString &msg, EmailType type = HTML);
 };
 
 #endif // SENDEMAIL_H
