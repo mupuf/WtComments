@@ -7,6 +7,7 @@
 #include <boost/thread.hpp>
 
 #include "comment.h"
+#include "sendemail.h"
 
 class View;
 
@@ -24,6 +25,7 @@ private:
 		NewCommentCallback cb;
 		Wt::WString thread;
 	} client;
+	SendEmail sendEmail;
 
 	/* associate clients to a comment thread */
 	static boost::recursive_mutex thread_clients_mutex;

@@ -178,4 +178,9 @@ void CommentsDB::postComment(const Comment &comment)
 		else
 			_server.post(clients[i].sessionID, boost::bind(clients[i].cb, comment));
 	}
+
+	/* email */
+	Wt::WString msg = "<p>Hi MuPuF.org users!</p><br/><p>The is a new comment from '{1}' on thread '{2}':</p><br/>{3}";
+	msg = msg.arg(comment.author()).arg(client.thread).arg(comment.msg());
+	sendEmail.send("New comment on " + client.thread, msg);
 }
