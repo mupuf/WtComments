@@ -55,7 +55,8 @@ Comment CommentsDB::readJSonComment(const Wt::Json::Object &object)
 	strReplace(msg_std, "&#34;", "\"");
 	strReplace(msg_std, "\\\\", "\\");
 
-	return Comment(author_std, msg_std, date, time, clientAddress, sessionId);
+	return Comment(Wt::WString::fromUTF8(author_std), Wt::WString::fromUTF8(msg_std),
+		       date, time, clientAddress, sessionId);
 }
 
 std::vector<Comment> CommentsDB::readCommentsFromFile()
@@ -153,6 +154,34 @@ void CommentsDB::saveNewComment(const Comment &comment)
 	}
 }
 
+bool CommentsDB::validateComment(const Comment &comment, Wt::WString &error) const
+{
+	if (comment.author().toUTF8().length() < 3) {
+		error = "The author name is too short (< 3 characters)";
+		return false;
+	}
+	if (comment.author().toUTF8().length() > 30) {
+		error = "The author name is too long (> 30 characters)";
+		return false;
+	}
+
+	if (comment.msg().toUTF8().length() < 30) {
+		error = "The message is too short (< 30 characters)";
+		return false;
+	}
+	if (comment.msg().toUTF8().length() > 1024) {
+		error = "The message is too long (> 1024 characters)";
+		return false;
+	}
+
+	if (countOccurencies(comment.msg().toUTF8(), "<a ") > 10) {
+		error = "Too many links in this comment (> 10).<br/>Are you a spammer?";
+		return false;
+	}
+
+	return true;
+}
+
 CommentsDB::CommentsDB(Wt::WServer &server, const Wt::WString &thread, NewCommentCallback cb)
 		: _server(server)
 {
@@ -184,10 +213,13 @@ CommentsDB::~CommentsDB()
 	}
 }
 
-void CommentsDB::postComment(const Comment &comment)
+bool CommentsDB::postComment(const Comment &comment, Wt::WString &error)
 {
 	boost::recursive_mutex::scoped_lock lock_thread(thread_clients_mutex);
 	boost::recursive_mutex::scoped_lock lock_comments(comments_mutex);
+
+	if (!validateComment(comment, error))
+		return false;
 
 	/* add the comment to the DB */
 	saveNewComment(comment);
@@ -206,4 +238,6 @@ void CommentsDB::postComment(const Comment &comment)
 	Wt::WString msg = "<p>Hi MuPuF.org users!</p><p>The is a new comment from '{1}' on thread '{2}':</p><br/>{3}";
 	msg = msg.arg(comment.author()).arg(client.thread).arg(comment.msg());
 	sendEmail.send("New comment on " + client.thread, msg);
+
+	return true;
 }

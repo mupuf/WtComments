@@ -16,3 +16,13 @@ std::string &strReplace(std::string & subj, const std::string &old, const std::s
 	} while(uiui != std::string::npos);
 	return subj;
 }
+
+unsigned int countOccurencies(const std::string &str, const std::string &substr)
+{
+	size_t  pos = 0, count = 0;
+	while (pos = str.find(substr, pos) != std::string::npos) {
+		count++;
+		pos++;
+	}
+	return count;
+}

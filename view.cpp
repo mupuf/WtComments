@@ -41,25 +41,15 @@ void View::drawComment(const Comment &comment)
 void View::postComment()
 {
 	Comment comment(_editAuthor->text(), _editMsg->text());
+	Wt::WString error;
 
-	if (_editAuthor->text().value().length() == 0) {
+	if (db->postComment(comment, error)) {
+		/* reset the text */
+		_editMsg->setText(Wt::WString());
+	} else {
 		Wt::WMessageBox::show("Error while posting the comment",
-				"The author name is missing",
-				Wt::Ok);
-		return;
+				error, 	Wt::Ok);
 	}
-
-	if (_editMsg->text().value().length() < 10) {
-		Wt::WMessageBox::show("Error while posting the comment",
-				"The text submited is too short.<br/><br/>Please write some text",
-				Wt::Ok);
-		return;
-	}
-
-	/* reset the text */
-	_editMsg->setText(Wt::WString());
-
-	db->postComment(comment);
 }
 
 View::View(const Wt::WEnvironment& env, Wt::WServer &server, std::string &thread) :
@@ -101,6 +91,7 @@ View::View(const Wt::WEnvironment& env, Wt::WServer &server, std::string &thread
 	_editAuthor = new Wt::WLineEdit();
 	_editMsg = new Wt::WTextEdit();
 	_editMsg->setHeight(300);
+	_editMsg->setExtraPlugins("advlink");
 
 	Wt::WTemplate *t = new Wt::WTemplate();
 	t->setTemplateText("<hr width=\"80%\" />" \

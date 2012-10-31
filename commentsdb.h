@@ -40,10 +40,12 @@ private:
 	std::vector<Comment> readCommentsFromFile();
 	void saveNewComment(const Comment &comment);
 
+	bool validateComment(const Comment &comment, Wt::WString &error) const;
+
 public:
 	CommentsDB(Wt::WServer &server, const Wt::WString &thread, NewCommentCallback cb);
 	~CommentsDB();
-	void postComment(const Comment &comment);
+	bool postComment(const Comment &comment, Wt::WString &error);
 };
 
 #endif // COMMENTSDB_H
