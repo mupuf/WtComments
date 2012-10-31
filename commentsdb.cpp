@@ -169,8 +169,8 @@ bool CommentsDB::validateComment(const Comment &comment, Wt::WString &error) con
 		error = "The message is too short (< 30 characters)";
 		return false;
 	}
-	if (comment.msg().toUTF8().length() > 1024) {
-		error = "The message is too long (> 1024 characters)";
+	if (comment.msg().toUTF8().length() > 8192) {
+		error = "The message is too long (> 8192 characters)";
 		return false;
 	}
 
