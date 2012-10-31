@@ -11,31 +11,15 @@
 
 #include <iostream>
 #include <fstream>
-#include <limits.h>
 
 boost::recursive_mutex CommentsDB::thread_clients_mutex;
 std::map<Wt::WString, std::vector<CommentsDB::Client> > CommentsDB::thread_clients;
 
 boost::recursive_mutex CommentsDB::comments_mutex;
 
-/* WARNING: This function is not portable! Linux ONLY! */
-std::string CommentsDB::getDBDirectory() const
-{
-	char path[PATH_MAX];
-	size_t len = readlink("/proc/self/exe", path, PATH_MAX);
-	path[len] = '\0';
-
-	std::string dbPath(path);
-	std::size_t dir = dbPath.find_last_of('/');
-	if (dir != std::string::npos)
-		return dbPath.substr(0, dir) + "/db/";
-	else
-		return "./db/";
-}
-
 std::string CommentsDB::getDBFile() const
 {
-	return getDBDirectory() + client.thread.toUTF8() + ".json";
+	return "./db/" + client.thread.toUTF8() + ".json";
 }
 
 Comment CommentsDB::readJSonComment(const Wt::Json::Object &object)

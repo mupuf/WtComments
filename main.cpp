@@ -1,4 +1,5 @@
 #include "view.h"
+#include "util.h"
 
 #include <Wt/WEnvironment>
 #include <Wt/WServer>
@@ -32,6 +33,10 @@ int main(int argc, char **argv)
 		server.addEntryPoint(Wt::Application,
 				     boost::bind(createApplication, _1,
 				                 boost::ref(server)));
+
+		/* change the CWD to the binary's folder */
+		chdir(getExeDirectory().c_str());
+
 		if (server.start()) {
 			int sig = Wt::WServer::waitForShutdown(argv[0]);
 

@@ -1,5 +1,8 @@
 #include "util.h"
 
+#include <limits.h>
+#include <unistd.h>
+
 /* from http://stackoverflow.com/questions/4643512/replace-substring-with-another-substring-c */
 std::string &strReplace(std::string & subj, const std::string &old, const std::string &neu)
 {
@@ -25,4 +28,19 @@ unsigned int countOccurencies(const std::string &str, const std::string &substr)
 		pos++;
 	}
 	return count;
+}
+
+/* WARNING: This function is not portable! Linux ONLY! */
+std::string getExeDirectory()
+{
+	char path[PATH_MAX];
+	size_t len = readlink("/proc/self/exe", path, PATH_MAX);
+	path[len] = '\0';
+
+	std::string dbPath(path);
+	std::size_t dir = dbPath.find_last_of('/');
+	if (dir != std::string::npos)
+		return dbPath.substr(0, dir);
+	else
+		return std::string();
 }
