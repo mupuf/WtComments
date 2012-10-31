@@ -11,9 +11,12 @@
 #include <Wt/Json/Array>
 #include <Wt/Json/Value>
 
+/* default to a non-verbose libcurl */
 #ifndef SEND_EMAIL_DEBUG
-#define SEND_EMAIL_DEBUG 1L
+#define SEND_EMAIL_DEBUG 0
 #endif
+
+#define UNUSED(expr) do { (void)(expr); } while (0)
 
 /* This file is mostly copied from http://curl.haxx.se/libcurl/c/smtp-tls.html */
 
@@ -79,6 +82,12 @@ size_t SendEmail::payload_source(void *ptr, size_t size, size_t nmemb, void *use
 
 bool SendEmail::send(const Wt::WString &title, const Wt::WString &msg, EmailType type)
 {
+#ifndef SEND_EMAIL
+	UNUSED(title);
+	UNUSED(msg);
+	UNUSED(type);
+	return false;
+#else
 	CURL *curl;
 	CURLcode res;
 	struct curl_slist *curl_recipients = NULL;
@@ -145,4 +154,5 @@ bool SendEmail::send(const Wt::WString &title, const Wt::WString &msg, EmailType
 	}
 
 	return true;
+#endif
 }
