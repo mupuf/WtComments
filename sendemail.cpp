@@ -11,7 +11,7 @@
 #include <Wt/Json/Array>
 #include <Wt/Json/Value>
 
-#define UNUSED(expr) do { (void)(expr); } while (0)
+#include "util.h"
 
 /* This file is mostly copied from http://curl.haxx.se/libcurl/c/smtp-tls.html */
 
@@ -46,15 +46,15 @@ bool SendEmail::readConfigurationFile(bool &enable, bool &verbose, Wt::WString &
 	Wt::Json::Object result;
 	Wt::Json::parse(file, result);
 
-	enable = result.get("enable");
-	verbose = result.get("verbose");
-	login = result.get("login");
-	pwd = result.get("pwd");
-	from = result.get("from");
-	jsonRecipients = result.get("to");
+	enable = readJSONValue<bool>(result, "enable", false);
+	verbose = readJSONValue<bool>(result, "verbose", false);
+	login = readJSONValue<Wt::WString>(result, "login", "");
+	pwd = readJSONValue<Wt::WString>(result, "pwd", "");
+	from = readJSONValue<Wt::WString>(result, "from", "");
+	jsonRecipients = readJSONValue<Wt::Json::Array>(result, "to", Wt::Json::Array());
 
 	for (size_t i = 0; i < jsonRecipients.size(); i++)
-		to.push_back(((Wt::Json::Object)jsonRecipients[i]).get("email"));
+		to.push_back(readJSONValue<Wt::WString>(jsonRecipients[i], "email", ""));
 
 	return true;
 }

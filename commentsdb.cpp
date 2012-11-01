@@ -26,12 +26,12 @@ std::string CommentsDB::getDBFile() const
 
 Comment CommentsDB::readJSonComment(const Wt::Json::Object &object)
 {
-	const Wt::WString &author = object.get("author");
-	Wt::WDate date = Wt::WDate::fromJulianDay((int)object.get("date"));
-	Wt::WTime time = Wt::WTime::fromString(object.get("time"));
-	const Wt::WString &msg = object.get("msg");
-	const Wt::WString &clientAddress = object.get("IP");
-	const Wt::WString &sessionId = object.get("sessionId");
+	const Wt::WString &author = readJSONValue<Wt::WString>(object, "author", "no_author");
+	Wt::WDate date = Wt::WDate::fromJulianDay(readJSONValue<int>(object, "date", Wt::WDate::currentDate().toJulianDay()));
+	Wt::WTime time = Wt::WTime::fromString(readJSONValue<Wt::WString>(object, "time", "00:00:00"));
+	const Wt::WString &msg = readJSONValue<Wt::WString>(object, "msg", "Err: Invalid message");
+	const Wt::WString &clientAddress = readJSONValue<Wt::WString>(object, "IP", "0.0.0.0");
+	const Wt::WString &sessionId = readJSONValue<Wt::WString>(object, "sessionId", "0");
 
 	std::string author_std = author.toUTF8();
 	strReplace(author_std, "&#34;", "\"");
@@ -41,8 +41,9 @@ Comment CommentsDB::readJSonComment(const Wt::Json::Object &object)
 	strReplace(msg_std, "&#34;", "\"");
 	strReplace(msg_std, "\\\\", "\\");
 
-	return Comment(Wt::WString::fromUTF8(author_std), Wt::WString::fromUTF8(msg_std),
-		       date, time, clientAddress, sessionId);
+	return Comment(Wt::WString::fromUTF8(author_std),
+			Wt::WString::fromUTF8(msg_std), date, time,
+			clientAddress, sessionId);
 }
 
 std::vector<Comment> CommentsDB::readCommentsFromFile()
@@ -66,14 +67,16 @@ std::vector<Comment> CommentsDB::readCommentsFromFile()
 		return comments;
 	}
 
-	if (file.size() == 0)
+	if (file.size() == 0) {
+		std::cerr << "The file '" + getDBFile() + "' is empty" << std::endl;
 		return comments;
+	}
 
 	/* parse the file we read */
 	try {
 		Wt::Json::Object result;
 		Wt::Json::parse(file, result);
-		const Wt::Json::Array& jsonComments = result.get("comments");
+		const Wt::Json::Array& jsonComments = readJSONValue<Wt::Json::Array>(result, "comments", Wt::Json::Array());
 
 		/* parse the comments we read */
 		for (size_t i = 0; i < jsonComments.size(); i++)
