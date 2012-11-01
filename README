@@ -23,11 +23,18 @@ too many features.
 
 ### Building
 Once Wt is installed, you can build this project with:
-$ cd wt-comments
-$ mkdir build
-$ cd build
-$ cmake ..
-$ make
+
+	$ cd wt-comments
+	$ mkdir build
+	$ cd build
+	$ cmake .. -DUSE_CON_HTTP=ON -DSEND_EMAIL=ON 	# example, see below
+	$ make
+
+The most important compilation option is USE_CON_HTTP. If set to OFF, then
+WtComments will be accessible only through FCGI. If the option is set to ON,
+then WtComments will be accessible only through the built-in http server.
+
+Another option is "SEND_EMAIL". This feature is described below.
 
 ### Tiny MCE
 In order to use Wt Comments, you'll need to first download tiny MCE:
@@ -35,7 +42,8 @@ https://github.com/tinymce/tinymce/downloads
 
 At least tiny MCE 3.5.7 works with with Wt 3.2.3rc1, but it should work with
 other versions:
-$ wget http://github.com/downloads/tinymce/tinymce/tinymce_3.5.7.zip
+
+	$ wget http://github.com/downloads/tinymce/tinymce/tinymce_3.5.7.zip
 
 Then, extract tiny MCE and copy the inner tiny_mce folder to
 /usr/share/Wt/resources/. The file /usr/share/Wt/resources/tiny_mce/tiny_mce.js
@@ -47,18 +55,90 @@ comment thread.
 
 These files are meant to be stored in the db/ folder of wtcomments' binary's
 folder. Please create this folder:
-$ mkdir db/
 
-You should now be ready for the first test run!
+	$ mkdir db/
+
+### Emails
+Wt Comments can warn you and your collaborators when a new comment has been
+posted on your website.
+
+In order to make use of this feature, WtComments should be compiled with the
+option "-DSEND_EMAIL=ON". Then, this option needs to be enabled at run-time by
+creating the file "wt_comments_email.json" in the same directory as WtComments.
+
+Here is an example of the "wt_comments_email.json" file:
+
+{
+	"enable": true,
+	"verbose": false,
+	"login": "my_freaking_login",
+	"pwd": "my_freaking_password",
+
+	"from": "root@myserver.com",
+	"to":
+	[
+		{ "email": "myadmin1@myserver.com" },
+		{ "email": "myadmin2@myserver.com" }
+	]
+}
+
+This feature has been sucessfully tested with GMAIL.
 
 ## Execution
 
 ### Using the built-in http server in Wt
+If you decide to use this mode, this means that you compiled WtComments with the
+option USE_CON_HTTP=ON. If not, recompile it with this option.
+
 Please launch this project with the following command line:
-$ ./wtcomments --docroot /usr/share/Wt/ --http-address 0.0.0.0 --http-port 9090 
+
+	$ ./wtcomments --docroot /usr/share/Wt/ --http-address 0.0.0.0 --http-port 9090
 
 Then open the url http://127.0.0.1:9090 and enjoy!
 
 ### Using fastcgi
-TODO
+If you decide to use this mode, this means that you compiled WtComments with the
+option USE_CON_HTTP=OFF. If not, recompile it with this option.
 
+The first thing you need to do before launching WtComments is creating the user
+that will be used when running:
+
+	# useradd -Um wtcomments
+
+You then need to create the folder /var/run/wt and changing its owner to the
+the wtcomments uid by doing so:
+
+	# mkdir /var/run/wt
+	# chown wtcomments:wtcomments /var/run/wt
+
+Now copy the wtcomments binary to /home/wtcomments/ and follow the instruction
+concerning the installation of the database + emails. Then, you can finally
+run WtComments by doing this:
+
+	$ spawn-fcgi -n -f ./wtcomments -a 0.0.0.0 -p 9666
+
+This will spawn the FCGI service on port 9666.
+
+You then need to configure your http server to actually make use of this binary.
+On NGINX, just add something like that to your virtualhost:
+
+        location ~* \.wt$ {
+                root   /usr/share/Wt/;
+                include /etc/nginx/fastcgi.conf;
+                fastcgi_pass   localhost:9666;
+
+        }
+
+Finally, you need to tell your webserver where are the Wt ressource files:
+        location /resources/ {
+            root   /usr/share/Wt/;
+            index  index.html index.htm;
+        }
+
+If you would like this URL to be different from /resources, you'll need to
+change it both in your webserver configuration and in /etc/wt/wt_config.xml by
+changing this line:
+
+	<property name="resourcesURL">resources/</property>
+
+Reload the webserver and enjoy!
