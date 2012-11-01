@@ -1,0 +1,16 @@
+<script language="JavaScript">
+<!--
+	prevReportedHeight = 0;
+	function autoResize(id){
+		var newheight;
+		var firefoxOffset = 25; // Firefox seems to report a value smaller than the actual size
+		if(document.getElementById){
+			newheight=document.getElementById(id).contentWindow.document.body.scrollHeight;
+			if ((newheight - firefoxOffset) > prevReportedHeight) {
+				document.getElementById(id).height = (newheight + firefoxOffset) + "px";
+				prevReportedHeight = newheight;
+			}
+		}
+	}
+</script>
+<iframe src="http://mupuf.org/comments.wt?url={{site.url}}{{page.url}}" width="100%" height="500px" id="comments" marginheight="0" frameborder="0" onLoad="autoResize('comments'); setInterval(function(){autoResize('comments');}, 500);"></iframe>

@@ -1,0 +1,20 @@
+# WtComments for Octopress
+
+The installation of WtComments on octopress isn't that hard. Just follow these
+steps:
+
+- Copy wtcomments.html to $your_octopress_tree/source/_includes/
+- Include the plugin in source/_layouts/(page|post).html
+
+The way I personnaly include the plugin is by using the following snippet:
+
+	{% if page.comments == true %}
+		<section>
+			<h1>Comments</h1>
+			{% include wtcomments.html %}
+		</section>
+	{% endif %}
+
+You may also want to replace Disqus references from the modified files.
+
+You should be all set and ready :)
