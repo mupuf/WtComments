@@ -123,17 +123,32 @@ run WtComments by doing this:
 
 	$ spawn-fcgi -n -f ./wtcomments -a 0.0.0.0 -p 9666
 
+or use the systemd service units available in the systemd folder:
+
+TODO
+
 This will spawn the FCGI service on port 9666.
 
 You then need to configure your http server to actually make use of this binary.
 On NGINX, just add something like that to your virtualhost:
 
-        location ~* \.wt$ {
-                root   /usr/share/Wt/;
+        location /comments.wt {
                 include /etc/nginx/fastcgi.conf;
                 fastcgi_pass   localhost:9666;
 
         }
+
+or if you're using unix sockets:
+
+        location /comments.wt {
+		include fastcgi_params;
+		gzip off;
+
+		fastcgi_read_timeout  5m;
+		fastcgi_param DOCUMENT_ROOT     /home/wtcomments/;
+		fastcgi_param SCRIPT_FILENAME   /home/wtcomments/wtcomments;
+		fastcgi_pass unix:/var/run/wt/wtcomments.sock;
+	}
 
 Finally, you need to tell your webserver where are the Wt ressource files:
         location /resources/ {
