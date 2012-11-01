@@ -3,14 +3,20 @@
 Wt Comments is a project that was written in order to allow users to comment on
 static websites (such as http://www.mupuf.org).
 
-The goal was to create a minimal and self-standing binary that would serve
-user's comments as needed. These comments are to be stored in a JSON file.
+The goal was to create a secure, minimal and self-standing binary that would
+serve user's comments as needed. These comments are to be stored in a JSON file.
 
-I decided to write this project in Wt, a C++ Web Framework, because I didn't
-want a dependency to scripting engines such as Python, Ruby or PHP.
+I wanted a program that would run under a specific UID (using FCGI or a
+built-in http server) and that would provide strong separation between
+code and data in order to limit the risks posed by this service to the system.
+
+I decided to write this project in Wt, a C++ Web Framework that I have been
+looking into using for a while now, because it satisfied all my pre-requirements
+and allowed the usage of hardware and gcc security features such as the NX bit
+and cannaries.
 
 The program has been written with portability in mind. However, it is currently
-limited to Linux due to one simple function (getDBDirectory()). Feel free to
+limited to Linux due to one simple function (getExeDirectory()). Feel free to
 send me patches ;)
 
 ## Dependencies & Installation
