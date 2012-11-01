@@ -13,7 +13,7 @@ code and data in order to limit the risks posed by this service to the system.
 I decided to write this project in Wt, a C++ Web Framework that I have been
 looking into using for a while now, because it satisfied all my pre-requirements
 and allowed the usage of hardware and gcc security features such as the NX bit
-and cannaries.
+and canaries.
 
 The program has been written with portability in mind. However, it is currently
 limited to Linux due to one simple function (getExeDirectory()). Feel free to
@@ -90,7 +90,7 @@ Here is an example of the "wt_comments_email.json" file:
 	]
 }
 
-This feature has been sucessfully tested with GMail.
+This feature has been successfully tested with GMail.
 
 ## Execution
 
