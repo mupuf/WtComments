@@ -16,11 +16,6 @@
 
 #include "util.h"
 
-void View::setCommentThread(const Wt::WString &thread)
-{
-	setTitle("Comments for the thread \"" + thread + "\"");
-}
-
 void View::drawComment(const Comment &comment)
 {
 	Wt::WString title = Wt::WString("<span class=\"comment_author\">{1}</span> on {2} {3} said:");
@@ -52,7 +47,7 @@ void View::postComment()
 	}
 }
 
-View::View(const Wt::WEnvironment& env, Wt::WServer &server, std::string &thread) :
+View::View(const Wt::WEnvironment& env, Wt::WServer &server, std::string &url) :
 	Wt::WApplication(env)
 {
 	Wt::WApplication *app = Wt::WApplication::instance();
@@ -64,13 +59,13 @@ View::View(const Wt::WEnvironment& env, Wt::WServer &server, std::string &thread
 		  << "' and doc root = '" << Wt::WApplication::docRoot()
 		  << "'" << std::endl;
 
-	/* fixup the thread to get rid of any / */
-	strReplace(thread, "/", "|");
-	setCommentThread(thread);
+	/* Set the title */
+	setTitle("Comments for the thread \"" + url + "\"");
 
 	/* CSS fixups */
 	app->styleSheet().addRule(".comment_author", "font-weight:bold");
-	app->styleSheet().addRule("p", "margin: 0px");
+	app->styleSheet().addRule("p", "margin-top: 8px");
+	app->styleSheet().addRule("p", "margin-bottom: 8px");
 
 	/* Comments section */
 	Wt::WContainerWidget *w = new Wt::WContainerWidget(root());
@@ -111,6 +106,6 @@ View::View(const Wt::WEnvironment& env, Wt::WServer &server, std::string &thread
 	root()->addWidget(t);
 
 	/* Init the DB */
-	db.reset(new CommentsDB(server, thread, boost::bind(&View::drawComment, this, _1)));
+	db.reset(new CommentsDB(server, url, boost::bind(&View::drawComment, this, _1)));
 }
 

@@ -22,7 +22,6 @@ private:
 	std::string getValueFromEnv(const Wt::WEnvironment& env,
 				const std::string &key,
 				const std::string &defaultValue = std::string()) const;
-	void setCommentThread(const Wt::WString &thread);
 	void postComment();
 	void drawComment(const Comment &comment);
 

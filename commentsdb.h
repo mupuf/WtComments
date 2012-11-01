@@ -23,13 +23,13 @@ private:
 	{
 		std::string sessionID;
 		NewCommentCallback cb;
-		Wt::WString thread;
+		Wt::WString url;
 	} client;
 	SendEmail sendEmail;
 
 	/* associate clients to a comment thread */
 	static boost::recursive_mutex thread_clients_mutex;
-	static std::map<Wt::WString, std::vector<Client> > thread_clients;
+	static std::map<Wt::WString, std::vector<Client> > url_clients;
 
 	static boost::recursive_mutex comments_mutex;
 
@@ -43,7 +43,7 @@ private:
 	bool validateComment(const Comment &comment, Wt::WString &error) const;
 
 public:
-	CommentsDB(Wt::WServer &server, const Wt::WString &thread, NewCommentCallback cb);
+	CommentsDB(Wt::WServer &server, const Wt::WString &url, NewCommentCallback cb);
 	~CommentsDB();
 	bool postComment(const Comment &comment, Wt::WString &error);
 };

@@ -13,13 +13,15 @@
 #include <fstream>
 
 boost::recursive_mutex CommentsDB::thread_clients_mutex;
-std::map<Wt::WString, std::vector<CommentsDB::Client> > CommentsDB::thread_clients;
+std::map<Wt::WString, std::vector<CommentsDB::Client> > CommentsDB::url_clients;
 
 boost::recursive_mutex CommentsDB::comments_mutex;
 
 std::string CommentsDB::getDBFile() const
 {
-	return "./db/" + client.thread.toUTF8() + ".json";
+	std::string url = client.url.toUTF8();
+	strReplace(url, "/", "|");
+	return "./db/" + url + ".json";
 }
 
 Comment CommentsDB::readJSonComment(const Wt::Json::Object &object)
@@ -83,7 +85,7 @@ std::vector<Comment> CommentsDB::readCommentsFromFile()
 
 		/* email */
 		Wt::WString msg, title = "Error while parsing thread '{1}':";
-		title = title.arg(client.thread);
+		title = title.arg(client.url);
 		msg = "{1}\n\nError = '{2}'\n\nFile = '{3}'";
 		msg.arg(title).arg(error.what()).arg(file);
 		sendEmail.send(title, msg, SendEmail::PLAIN);
@@ -153,8 +155,8 @@ bool CommentsDB::validateComment(const Comment &comment, Wt::WString &error) con
 		error = "The message is too short (< 30 characters)";
 		return false;
 	}
-	if (comment.msg().toUTF8().length() > 8192) {
-		error = "The message is too long (> 8192 characters)";
+	if (comment.msg().toUTF8().length() > 4096) {
+		error = "The message is too long (> 4096 characters)";
 		return false;
 	}
 
@@ -163,19 +165,24 @@ bool CommentsDB::validateComment(const Comment &comment, Wt::WString &error) con
 		return false;
 	}
 
+	/* TODO: - Limit the number of comments per minute per IP
+	 *       - Implement some kind of capcha validation
+	*/
+
+
 	return true;
 }
 
-CommentsDB::CommentsDB(Wt::WServer &server, const Wt::WString &thread, NewCommentCallback cb)
+CommentsDB::CommentsDB(Wt::WServer &server, const Wt::WString &url, NewCommentCallback cb)
 		: _server(server)
 {
 	boost::recursive_mutex::scoped_lock lock(thread_clients_mutex);
 
 	client.sessionID = Wt::WApplication::instance()->sessionId();
 	client.cb = cb;
-	client.thread = thread;
+	client.url = url;
 
-	thread_clients[client.thread].push_back(client);
+	url_clients[client.url].push_back(client);
 
 	/* display the comments */
 	std::vector<Comment> comments = readCommentsFromFile();
@@ -188,10 +195,10 @@ CommentsDB::~CommentsDB()
 	boost::recursive_mutex::scoped_lock lock(thread_clients_mutex);
 
 	/* erase the client from the client DB */
-	std::vector<Client> clients = thread_clients[client.thread];
+	std::vector<Client> clients = url_clients[client.url];
 	for (size_t i = 0; i < clients.size(); i++) {
 		if (client.sessionID == clients[i].sessionID) {
-			thread_clients[client.thread].erase(thread_clients[client.thread].begin() + i);
+			url_clients[client.url].erase(url_clients[client.url].begin() + i);
 			return;
 		}
 	}
@@ -209,7 +216,7 @@ bool CommentsDB::postComment(const Comment &comment, Wt::WString &error)
 	saveNewComment(comment);
 
 	/* warn the other clients that there is a new comment */
-	std::vector<Client> clients = thread_clients[client.thread];
+	std::vector<Client> clients = url_clients[client.url];
 
 	for (size_t i = 0; i < clients.size(); i++) {
 		if (client.sessionID == clients[i].sessionID)
@@ -219,9 +226,9 @@ bool CommentsDB::postComment(const Comment &comment, Wt::WString &error)
 	}
 
 	/* email */
-	Wt::WString msg = "<p>Hi MuPuF.org users!</p><p>The is a new comment from '{1}' on thread '{2}':</p><br/>{3}";
-	msg = msg.arg(comment.author()).arg(client.thread).arg(comment.msg());
-	sendEmail.send("New comment on " + client.thread, msg);
+	Wt::WString msg = "<p>Hi MuPuF.org users!</p><p>The is a new comment from '{1}' on article <a href=\"{2}\">{2}</a>:</p>------------------------------{3}";
+	msg = msg.arg(comment.author()).arg(client.url).arg(comment.msg());
+	sendEmail.send("New comment on " + client.url, msg);
 
 	return true;
 }

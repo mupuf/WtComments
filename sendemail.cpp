@@ -11,11 +11,6 @@
 #include <Wt/Json/Array>
 #include <Wt/Json/Value>
 
-/* default to a non-verbose libcurl */
-#ifndef SEND_EMAIL_DEBUG
-#define SEND_EMAIL_DEBUG 0
-#endif
-
 #define UNUSED(expr) do { (void)(expr); } while (0)
 
 /* This file is mostly copied from http://curl.haxx.se/libcurl/c/smtp-tls.html */
@@ -25,7 +20,7 @@ std::string SendEmail::getCredentialsFileName()
 	return "./wt_comments_email.json";
 }
 
-bool SendEmail::readConfigurationFile(Wt::WString &login, Wt::WString &pwd,
+bool SendEmail::readConfigurationFile(bool &enable, bool &verbose, Wt::WString &login, Wt::WString &pwd,
 			       Wt::WString &from, std::vector<Wt::WString> &to)
 {
 	Wt::Json::Array jsonRecipients;
@@ -51,6 +46,8 @@ bool SendEmail::readConfigurationFile(Wt::WString &login, Wt::WString &pwd,
 	Wt::Json::Object result;
 	Wt::Json::parse(file, result);
 
+	enable = result.get("enable");
+	verbose = result.get("verbose");
 	login = result.get("login");
 	pwd = result.get("pwd");
 	from = result.get("from");
@@ -62,10 +59,12 @@ bool SendEmail::readConfigurationFile(Wt::WString &login, Wt::WString &pwd,
 	return true;
 }
 
-SendEmail::SendEmail() : confIsValid(false)
+SendEmail::SendEmail() : isEnabled(false)
 {
-	if (readConfigurationFile(login, pwd, from, recipients))
-		confIsValid = true;
+	bool enable;
+
+	if (readConfigurationFile(enable, verbose, login, pwd, from, recipients))
+		isEnabled = enable;
 }
 
 size_t SendEmail::payload_source(void *ptr, size_t size, size_t nmemb, void *userp)
@@ -93,7 +92,7 @@ bool SendEmail::send(const Wt::WString &title, const Wt::WString &msg, EmailType
 	struct curl_slist *curl_recipients = NULL;
 	std::string buffer;
 
-	if (!confIsValid)
+	if (!isEnabled)
 		return false;
 
 	/* exit if there is no-one to send a mail to */
@@ -106,22 +105,14 @@ bool SendEmail::send(const Wt::WString &title, const Wt::WString &msg, EmailType
 	buffer += "From: " + from.toUTF8() + "\n",
 	buffer += "Subject: " + title.toUTF8() + "\n";
 	if (type == HTML) {
-		buffer += "Content-Type: text/html; charset=\"utf-8\"\n";
-		buffer += "Content-Transfer-Encoding: quoted-printable\n";
 		buffer += "Mime-version: 1.0\n";
+		buffer += "Content-Type: text/html; charset=\"UTF-8\"\n";
+		buffer += "Content-Transfer-Encoding: 8bit\n";
 		buffer += "\n";
-		buffer += "<html>\n";
-		buffer += "<head>\n";
-		buffer += "	<meta http-equiv=3D\"Content-Type\" content=3D\"text/html; charset=3Dus-ascii\">\n";
-		buffer += "</head>\n";
-		buffer += "<body>\n";
 	} else
 		buffer += "Content-Type: text/plain; charset=\"utf-8\"\n";
 	buffer += msg.toUTF8();
-	if (type == HTML) {
-		buffer += "</body>\n";
-		buffer += "</html>\n";
-	}
+
 	emailBuffer.str(buffer);
 
 	curl = curl_easy_init();
@@ -139,7 +130,7 @@ bool SendEmail::send(const Wt::WString &title, const Wt::WString &msg, EmailType
 		curl_easy_setopt(curl, CURLOPT_READDATA, this);
 
 		/* Verbose ? Set to 1 if you want to debug stuff */
-		curl_easy_setopt(curl, CURLOPT_VERBOSE, SEND_EMAIL_DEBUG);
+		curl_easy_setopt(curl, CURLOPT_VERBOSE, verbose?1L:0L);
 
 		/* send the message (including headers) */
 		res = curl_easy_perform(curl);

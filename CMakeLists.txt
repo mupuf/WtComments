@@ -76,9 +76,6 @@ if (SEND_EMAIL)
 endif (SEND_EMAIL)
 
 # Output binary
-if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
-	add_definitions("-DSEND_EMAIL_DEBUG=1L")
-endif(NOT CMAKE_BUILD_TYPE)
 file(GLOB wtcomments_SOURCES "*.cpp" "*.h")
 add_executable(wtcomments ${wtcomments_SOURCES})
 target_link_libraries(wtcomments ${Wt_LIBRARY} ${Wt_CONNECTOR} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${LIBCURL_LDFLAGS})

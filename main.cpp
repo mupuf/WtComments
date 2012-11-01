@@ -19,7 +19,7 @@ std::string getValueFromEnv(const Wt::WEnvironment& env,
 Wt::WApplication *createApplication(const Wt::WEnvironment& env,
 					Wt::WServer &server)
 {
-	std::string thread = getValueFromEnv(env, "thread", "default");
+	std::string thread = getValueFromEnv(env, "url", "/default");
 	return new View(env, server, thread);
 }
 
