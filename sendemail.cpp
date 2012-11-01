@@ -20,8 +20,9 @@ std::string SendEmail::getCredentialsFileName()
 	return "./wt_comments_email.json";
 }
 
-bool SendEmail::readConfigurationFile(bool &enable, bool &verbose, Wt::WString &login, Wt::WString &pwd,
-			       Wt::WString &from, std::vector<Wt::WString> &to)
+bool SendEmail::readConfigurationFile(bool &enable, bool &verbose,
+		Wt::WString &login, Wt::WString &pwd, Wt::WString &smtp_server,
+		Wt::WString &from, std::vector<Wt::WString> &to)
 {
 	Wt::Json::Array jsonRecipients;
 	std::string file;
@@ -50,6 +51,7 @@ bool SendEmail::readConfigurationFile(bool &enable, bool &verbose, Wt::WString &
 	verbose = readJSONValue<bool>(result, "verbose", false);
 	login = readJSONValue<Wt::WString>(result, "login", "");
 	pwd = readJSONValue<Wt::WString>(result, "pwd", "");
+	smtp_server = readJSONValue<Wt::WString>(result, "smtp_server", "");
 	from = readJSONValue<Wt::WString>(result, "from", "");
 	jsonRecipients = readJSONValue<Wt::Json::Array>(result, "to", Wt::Json::Array());
 
@@ -63,7 +65,7 @@ SendEmail::SendEmail() : isEnabled(false)
 {
 	bool enable;
 
-	if (readConfigurationFile(enable, verbose, login, pwd, from, recipients))
+	if (readConfigurationFile(enable, verbose, login, pwd, smtp_server, from, recipients))
 		isEnabled = enable;
 }
 
@@ -117,7 +119,7 @@ bool SendEmail::send(const Wt::WString &title, const Wt::WString &msg, EmailType
 
 	curl = curl_easy_init();
 	if (curl) {
-		curl_easy_setopt(curl, CURLOPT_URL, "smtp://smtp.gmail.com:587");
+		curl_easy_setopt(curl, CURLOPT_URL, smtp_server.toUTF8().c_str());
 		curl_easy_setopt(curl, CURLOPT_USE_SSL, (long)CURLUSESSL_ALL);
 		curl_easy_setopt(curl, CURLOPT_USERNAME, login.toUTF8().c_str());
 		curl_easy_setopt(curl, CURLOPT_PASSWORD, pwd.toUTF8().c_str());

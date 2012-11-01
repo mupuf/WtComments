@@ -79,7 +79,7 @@ Here is an example of the "wt_comments_email.json" file:
 	"verbose": false,
 	"login": "my_freaking_login",
 	"pwd": "my_freaking_password",
-
+	"smtp_server": "smtp://smtp.myserver.com:587"
 	"from": "root@myserver.com",
 	"to":
 	[
@@ -121,16 +121,17 @@ Now copy the wtcomments binary to /home/wtcomments/ and follow the instruction
 concerning the installation of the database + emails. Then, you can finally
 run WtComments by doing this:
 
-	$ spawn-fcgi -n -f ./wtcomments -a 0.0.0.0 -p 9666
-
-or use the systemd service units available in the systemd folder:
-
-TODO
+	$ spawn-fcgi -n -a 0.0.0.0 -p 9666 -- /home/wtcomments/wtcomments
 
 This will spawn the FCGI service on port 9666.
 
+If you're using systemd, have a look at systemd/README for a cleaner way to
+manage this fcgi process.
+
+
 You then need to configure your http server to actually make use of this binary.
-On NGINX, just add something like that to your virtualhost:
+On nginx, add something like that to your virtualhost, if your fcgi is listening
+on localhost:9666 like the example above:
 
         location /comments.wt {
                 include /etc/nginx/fastcgi.conf;
@@ -138,7 +139,7 @@ On NGINX, just add something like that to your virtualhost:
 
         }
 
-or if you're using unix sockets:
+or if you're using unix sockets (default config in the systemd service unit):
 
         location /comments.wt {
 		include fastcgi_params;
@@ -151,6 +152,7 @@ or if you're using unix sockets:
 	}
 
 Finally, you need to tell your webserver where are the Wt ressource files:
+
         location /resources/ {
             root   /usr/share/Wt/;
             index  index.html index.htm;
@@ -163,3 +165,7 @@ changing this line:
 	<property name="resourcesURL">resources/</property>
 
 Reload the webserver and enjoy!
+
+## Octopress integration
+
+Please have a look at octopress/REAME.

@@ -1,14 +1,3 @@
-# Put me in /etc/systemd/system/
-#
-# Reload systemd unit files with:
-# $ systemctl --system daemon-reload
-#
-# Start it now with:
-# $ systemct start wtcomments.service
-#
-# Enable startup at boot with:
-# $ systemctl enable wtcomments.service
-
 [Unit]
 Description=Wt-comments fcgi launched by spawn-fcgi
 After=syslog.target network.target remote-fs.target nss-lookup.target

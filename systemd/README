@@ -1,0 +1,22 @@
+# How to use systemd to launch wtcomments
+
+## /var/run/wt
+
+To make sure /run/wt is created at boot (/run and /var/run on tmpfs),
+simply put the wtcomments.conf file in /etc/tmpfiles.d/
+
+
+## systemd service unit
+
+In order to use systemd to launch spawn-fcgi which spawn wtcomments' fcgi
+process, copy wtcomments.service to /etc/systemd/system/.
+
+Then reload systemd unit files with:
+# systemctl --system daemon-reload
+
+To start it, use:
+# systemct start wtcomments.service
+
+And to enable it for startup at boot:
+# systemctl enable wtcomments.service
+
