@@ -77,9 +77,11 @@ Here is an example of the "wt_comments_email.json" file:
 {
 	"enable": true,
 	"verbose": false,
+
+	"smtp_server": "smtp://smtp.myserver.com:587"
 	"login": "my_freaking_login",
 	"pwd": "my_freaking_password",
-	"smtp_server": "smtp://smtp.myserver.com:587"
+
 	"from": "root@myserver.com",
 	"to":
 	[
@@ -88,7 +90,7 @@ Here is an example of the "wt_comments_email.json" file:
 	]
 }
 
-This feature has been sucessfully tested with GMAIL.
+This feature has been sucessfully tested with GMail.
 
 ## Execution
 
