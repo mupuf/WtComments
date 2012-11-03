@@ -85,7 +85,8 @@ View::View(const Wt::WEnvironment& env, Wt::WServer &server, std::string &url) :
 	button->clicked().connect(this, &View::postComment);
 	_editAuthor = new Wt::WLineEdit();
 	_editMsg = new Wt::WTextEdit();
-	_editMsg->setHeight(300);
+	_editMsg->setConfigurationSetting(std::string("theme_advanced_statusbar_location"), std::string("none")); 
+	_editMsg->setHeight(250);
 	_editMsg->setToolBar(0, "bold, italic, underline, |, fontsizeselect, |, justifyleft, justifycenter, justifyright, justifyfull, |, indent, outdent, |, numlist, bullist, |,link, image, blockquote, code");
 
 	Wt::WTemplate *t = new Wt::WTemplate();
