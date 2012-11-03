@@ -3,7 +3,7 @@
 	prevReportedHeight = 0;
 	function autoResize(id){
 		var newheight;
-		var firefoxOffset = 25; // Firefox seems to report a value smaller than the actual size
+		var firefoxOffset = 50; // Firefox seems to report a value smaller than the actual size
 		if(document.getElementById){
 			newheight=document.getElementById(id).contentWindow.document.body.scrollHeight;
 			if ((newheight - firefoxOffset) > prevReportedHeight) {
