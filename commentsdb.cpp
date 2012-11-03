@@ -229,7 +229,7 @@ bool CommentsDB::postComment(const Comment &comment, Wt::WString &error)
 	}
 
 	/* email */
-	Wt::WString msg = "<p>Hi MuPuF.org users!</p><p>The is a new comment from '{1}' on article <a href=\"{2}\">{2}</a>:</p>------------------------------{3}";
+	Wt::WString msg = "<p>Hi MuPuF.org users!</p><p>There is a new comment from '{1}' on article <a href=\"{2}\">{2}</a>:</p>------------------------------{3}";
 	msg = msg.arg(comment.author()).arg(client.url).arg(comment.msg());
 	sendEmail.send("New comment on " + client.url, msg);
 

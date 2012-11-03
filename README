@@ -72,7 +72,8 @@ In order to make use of this feature, WtComments should be compiled with the
 option "-DSEND_EMAIL=ON". Then, this option needs to be enabled at run-time by
 creating the file "wt_comments_email.json" in the same directory as WtComments.
 
-Here is an example of the "wt_comments_email.json" file:
+Here is an example of the "wt_comments_email.json" file using a remote serveur
+to send emails:
 
 {
 	"enable": true,
@@ -82,7 +83,7 @@ Here is an example of the "wt_comments_email.json" file:
 	"login": "my_freaking_login",
 	"pwd": "my_freaking_password",
 
-	"from": "root@myserver.com",
+	"from": "wtcomments@myserver.com",
 	"to":
 	[
 		{ "email": "myadmin1@myserver.com" },
@@ -90,7 +91,26 @@ Here is an example of the "wt_comments_email.json" file:
 	]
 }
 
-This feature has been successfully tested with GMail.
+And here is an example using a local server (you need the 'mail' command and a
+running postfix/sendmail/qmail server):
+
+{
+	"enable": true,
+	"verbose": false,
+
+	"smtp_server": "local"
+	"login": "",
+	"pwd": "",
+
+	"from": "wtcomments@myserver.com",
+	"to":
+	[
+		{ "email": "myadmin1@myserver.com" },
+		{ "email": "myadmin2@myserver.com" }
+	]
+}
+
+This feature has been successfully tested with GMail and postfix.
 
 ## Execution
 

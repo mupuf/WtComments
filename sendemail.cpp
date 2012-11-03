@@ -1,6 +1,7 @@
 #include "sendemail.h"
 
 #include <stdio.h>
+#include <sys/wait.h>
 #include <string.h>
 #include <iostream>
 #include <fstream>
@@ -55,7 +56,7 @@ bool SendEmail::readConfigurationFile(bool &enable, bool &verbose,
 	from = readJSONValue<Wt::WString>(result, "from", "");
 	jsonRecipients = readJSONValue<Wt::Json::Array>(result, "to", Wt::Json::Array());
 
-	for (size_t i = 0; i < jsonRecipients.size(); i++)
+	for (size_t i = 0; i < jsonRecipients.size(); ++i)
 		to.push_back(readJSONValue<Wt::WString>(jsonRecipients[i], "email", ""));
 
 	return true;
@@ -65,8 +66,24 @@ SendEmail::SendEmail() : isEnabled(false)
 {
 	bool enable;
 
-	if (readConfigurationFile(enable, verbose, login, pwd, smtp_server, from, recipients))
+	if (readConfigurationFile(enable, verbose, login, pwd, smtp_server, from, recipients)) {
 		isEnabled = enable;
+
+		/* generate mail headers */
+		mailHeaderToFrom = "";
+		for (size_t i = 0; i < recipients.size(); ++i) {
+			mailHeaderToFrom += "To: " + recipients[i].toUTF8() + "\n";
+		}
+		mailHeaderToFrom += "From: " + from.toUTF8() + "\n";
+
+		mailHeaderContentHTML = "Mime-version: 1.0\n";
+		mailHeaderContentHTML += "Content-Type: text/html; charset=\"UTF-8\"\n";
+		mailHeaderContentHTML += "Content-Transfer-Encoding: 8bit\n";
+		mailHeaderContentHTML += "\n";
+
+		mailHeaderContentPLAIN = "Content-Type: text/plain; charset=\"UTF-8\"\n";
+		mailHeaderContentPLAIN += "\n";
+	}
 }
 
 size_t SendEmail::payload_source(void *ptr, size_t size, size_t nmemb, void *userp)
@@ -81,41 +98,13 @@ size_t SendEmail::payload_source(void *ptr, size_t size, size_t nmemb, void *use
 	return _this->emailBuffer.gcount();
 }
 
-bool SendEmail::send(const Wt::WString &title, const Wt::WString &msg, EmailType type)
+bool SendEmail::sendUsingCurl(const std::string &content)
 {
-#ifndef SEND_EMAIL
-	UNUSED(title);
-	UNUSED(msg);
-	UNUSED(type);
-	return false;
-#else
 	CURL *curl;
 	CURLcode res;
 	struct curl_slist *curl_recipients = NULL;
-	std::string buffer;
 
-	if (!isEnabled)
-		return false;
-
-	/* exit if there is no-one to send a mail to */
-	if (recipients.size() < 1)
-		return false;
-
-	/* generate the mail */
-	for (size_t i = 0; i < recipients.size(); i++)
-		buffer += "To: " + recipients[i].toUTF8() + "\n";
-	buffer += "From: " + from.toUTF8() + "\n",
-	buffer += "Subject: " + title.toUTF8() + "\n";
-	if (type == HTML) {
-		buffer += "Mime-version: 1.0\n";
-		buffer += "Content-Type: text/html; charset=\"UTF-8\"\n";
-		buffer += "Content-Transfer-Encoding: 8bit\n";
-		buffer += "\n";
-	} else
-		buffer += "Content-Type: text/plain; charset=\"utf-8\"\n";
-	buffer += msg.toUTF8();
-
-	emailBuffer.str(buffer);
+	emailBuffer.str(content);
 
 	curl = curl_easy_init();
 	if (curl) {
@@ -147,5 +136,90 @@ bool SendEmail::send(const Wt::WString &title, const Wt::WString &msg, EmailType
 	}
 
 	return true;
+}
+
+bool SendEmail::sendUsingLocalMail(const std::string &content)
+{
+	pid_t pid;
+	int mailpipe[2];
+	int returnCode = 0;
+	ssize_t writeLen = 0;
+	ssize_t retLen = 0;
+	ssize_t mailLen = content.length();
+
+	if(pipe(mailpipe)){
+		std::cerr << "sendUsingLocalMail: Failed to create pipe." << std::endl;
+		return false;
+	}
+
+	pid = fork();
+	if (pid == (pid_t) 0) {
+		close(mailpipe[1]);
+		if (dup2(mailpipe[0], STDIN_FILENO) < 0) {
+			std::cerr << "sendUsingLocalMail: Failed to dup2." << std::endl;
+			return false;
+		}
+		execl("/usr/bin/mail", "/usr/bin/mail", "-t", NULL);
+		std::cerr << "sendUsingLocalMail: Failed to execl." << std::endl;
+		exit(EXIT_FAILURE);
+	}
+
+	close(mailpipe[0]);
+
+	/* write mail content to mailpipe[1] */
+	while (writeLen < mailLen) {
+		retLen = write(mailpipe[1], content.c_str() + writeLen, sizeof(char) * (mailLen - writeLen));
+		if (retLen > 0) {
+			writeLen += retLen;
+		} else {
+			std::cerr << "sendUsingLocalMail: Failed to write the whole mail." << std::endl;
+			break;
+		}
+	}
+	close(mailpipe[1]);
+
+	pid = waitpid(pid, &returnCode, 0);
+	if ((pid > 0) && (returnCode == 0))
+		return true;
+
+	if (pid > 0)
+		std::cerr << "sendUsingLocalMail: mail command returned !=0 code." << std::endl;
+	else
+		std::cerr << "sendUsingLocalMail: Failed to waitpid()." << std::endl;
+
+	return false;
+}
+
+bool SendEmail::send(const Wt::WString &title, const Wt::WString &msg, EmailType type)
+{
+#ifndef SEND_EMAIL
+	UNUSED(title);
+	UNUSED(msg);
+	UNUSED(type);
+	return false;
+#else
+	std::string mailBuffer;
+
+	if (!isEnabled)
+		return false;
+
+	/* exit if there is no-one to send a mail to */
+	if (recipients.size() < 1)
+		return false;
+
+	/* generate the mail */
+	mailBuffer = mailHeaderToFrom;
+	mailBuffer += "Subject: " + title.toUTF8() + "\n";
+	if (type == HTML) {
+		mailBuffer += mailHeaderContentHTML;
+	} else {
+		mailBuffer += mailHeaderContentPLAIN;
+	}
+	mailBuffer += msg.toUTF8();
+
+	if (smtp_server == "local")
+		return sendUsingLocalMail(mailBuffer);
+
+	return sendUsingCurl(mailBuffer);
 #endif
 }
