@@ -100,6 +100,10 @@ size_t SendEmail::payload_source(void *ptr, size_t size, size_t nmemb, void *use
 
 bool SendEmail::sendUsingCurl(const std::string &content)
 {
+#ifndef SEND_EMAIL
+	UNUSED(content);
+	return false;
+#else
 	CURL *curl;
 	CURLcode res;
 	struct curl_slist *curl_recipients = NULL;
@@ -136,10 +140,15 @@ bool SendEmail::sendUsingCurl(const std::string &content)
 	}
 
 	return true;
+#endif
 }
 
 bool SendEmail::sendUsingLocalMail(const std::string &content)
 {
+#ifndef SEND_EMAIL
+	UNUSED(content);
+	return false;
+#else
 	pid_t pid;
 	int mailpipe[2];
 	int returnCode = 0;
@@ -188,6 +197,7 @@ bool SendEmail::sendUsingLocalMail(const std::string &content)
 		std::cerr << "sendUsingLocalMail: Failed to waitpid()." << std::endl;
 
 	return false;
+#endif
 }
 
 bool SendEmail::send(const Wt::WString &title, const Wt::WString &msg, EmailType type)
