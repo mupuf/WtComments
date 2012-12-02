@@ -24,24 +24,36 @@ std::string CommentsDB::getDBFile() const
 	return "./db/" + url + ".json";
 }
 
+std::string CommentsDB::encodeJSONString(std::string str)
+{
+	strReplace(str, "\"", "&#34;");
+	strReplace(str, "\\", "\\\\");
+	return str;
+}
+
+std::string CommentsDB::decodeJSONString(std::string str)
+{
+	strReplace(str, "&#34;", "\"");
+	strReplace(str, "\\\\", "\\");
+	return str;
+}
+
 Comment CommentsDB::readJSonComment(const Wt::Json::Object &object)
 {
 	const Wt::WString &author = readJSONValue<Wt::WString>(object, "author", "no_author");
+	const Wt::WString &email = readJSONValue<Wt::WString>(object, "email", "");
 	Wt::WDate date = Wt::WDate::fromJulianDay(readJSONValue<int>(object, "date", Wt::WDate::currentDate().toJulianDay()));
 	Wt::WTime time = Wt::WTime::fromString(readJSONValue<Wt::WString>(object, "time", "00:00:00"));
 	const Wt::WString &msg = readJSONValue<Wt::WString>(object, "msg", "Err: Invalid message");
 	const Wt::WString &clientAddress = readJSONValue<Wt::WString>(object, "IP", "0.0.0.0");
 	const Wt::WString &sessionId = readJSONValue<Wt::WString>(object, "sessionId", "0");
 
-	std::string author_std = author.toUTF8();
-	strReplace(author_std, "&#34;", "\"");
-	strReplace(author_std, "\\\\", "\\");
-
-	std::string msg_std = msg.toUTF8();
-	strReplace(msg_std, "&#34;", "\"");
-	strReplace(msg_std, "\\\\", "\\");
+	std::string author_std = decodeJSONString(author.toUTF8());
+	std::string email_std = decodeJSONString(email.toUTF8());
+	std::string msg_std = decodeJSONString(msg.toUTF8());
 
 	return Comment(Wt::WString::fromUTF8(author_std),
+			Wt::WString::fromUTF8(email_std),
 			Wt::WString::fromUTF8(msg_std), date, time,
 			clientAddress, sessionId);
 }
@@ -118,15 +130,16 @@ void CommentsDB::saveNewComment(const Comment &comment)
 		for (size_t i = 0; i < comments.size(); i++)
 		{
 			std::string author = comments[i].author().toUTF8();
+			std::string email = comments[i].email().toUTF8();
 			std::string msg = comments[i].msg().toUTF8();
 
 			/* replace the " character by it's html equivalent */
-			strReplace(author, "\"", "&#34;");
-			strReplace(msg, "\\", "\\\\");
-			strReplace(msg, "\"", "&#34;");
-			strReplace(msg, "\\", "\\\\");
+			author = encodeJSONString(author);
+			email = encodeJSONString(email);
+			msg = encodeJSONString(msg);
 
 			db << "		{ \"author\": \"" << author;
+			db << "\", \"email\": \"" << email;
 			db << "\", \"date\": " << comments[i].date().toJulianDay();
 			db << ", \"time\": \"" << comments[i].time().toString();
 			db << "\", \"msg\": \"" << msg;

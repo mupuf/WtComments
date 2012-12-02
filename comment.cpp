@@ -1,8 +1,9 @@
 #include "comment.h"
 
-Comment::Comment(const Wt::WString &author, const Wt::WString &msg, Wt::WDate date,
+Comment::Comment(const Wt::WString &author, const Wt::WString &email,
+		const Wt::WString &msg, Wt::WDate date,
 		Wt::WTime time, const Wt::WString &clientAddress, const Wt::WString &sessionId)
-		:_author(author), _date(date), _time(time), _msg(msg),
+		:_author(author), _email(email), _date(date), _time(time), _msg(msg),
 			_clientAddress(clientAddress), _sessionId(sessionId)
 {
 }
@@ -10,6 +11,11 @@ Comment::Comment(const Wt::WString &author, const Wt::WString &msg, Wt::WDate da
 void Comment::setAuthor(const Wt::WString &author)
 {
 	this->_author = author;
+}
+
+void Comment::setEmail(const Wt::WString &email)
+{
+	this->_email = email;
 }
 
 void Comment::setMsg(const Wt::WString &msg)

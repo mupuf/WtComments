@@ -13,6 +13,7 @@
 #include <Wt/WMessageBox>
 #include <Wt/WApplication>
 #include <Wt/WOverlayLoadingIndicator>
+#include <Wt/WRegExpValidator>
 
 #include "util.h"
 
@@ -35,7 +36,7 @@ void View::drawComment(const Comment &comment)
 
 void View::postComment()
 {
-	Comment comment(_editAuthor->text(), _editMsg->text());
+	Comment comment(_editAuthor->text(), _editEmail->text(), _editMsg->text());
 	Wt::WString error;
 
 	if (db->postComment(comment, error)) {
@@ -84,6 +85,10 @@ View::View(const Wt::WEnvironment& env, Wt::WServer &server, std::string &url) :
 	app->styleSheet().addRule("#btn_send", "float: right;");
 	button->clicked().connect(this, &View::postComment);
 	_editAuthor = new Wt::WLineEdit();
+	_editEmail = new Wt::WLineEdit();
+	Wt::WRegExpValidator *emailVal = new Wt::WRegExpValidator("^([a-zA-Z0-9_\\-\\.]+)@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)$", _editEmail);
+	_editEmail->setMinimumSize(Wt::WLength(200), _editEmail->minimumHeight());
+	_editEmail->setValidator(emailVal);
 	_editMsg = new Wt::WTextEdit();
 	_editMsg->setConfigurationSetting(std::string("theme_advanced_statusbar_location"), std::string("none")); 
 	_editMsg->setHeight(250);
@@ -94,6 +99,7 @@ View::View(const Wt::WEnvironment& env, Wt::WServer &server, std::string &url) :
 		"<div>"
 			"<h3>Send a comment</h3>" \
 			"<p><label>Author: ${author-edit}</label></p>" \
+			"<p><label>Notification email: ${email-edit}</label></p>" \
 			"${text-edit}" \
 			"${send_btn}"
 		"</div>"
@@ -101,6 +107,7 @@ View::View(const Wt::WEnvironment& env, Wt::WServer &server, std::string &url) :
 	t->setId("send_comment");
 	app->styleSheet().addRule("#send_comment", "width: 90%; margin: auto;");
 	t->bindWidget("author-edit", _editAuthor);
+	t->bindWidget("email-edit", _editEmail);
 	t->bindWidget("text-edit", _editMsg);
 	t->bindWidget("send_btn", button);
 

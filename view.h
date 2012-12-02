@@ -13,6 +13,7 @@ class View : public Wt::WApplication
 {
 private:
 	Wt::WLineEdit *_editAuthor;
+	Wt::WLineEdit *_editEmail;
 	Wt::WTextEdit *_editMsg;
 	Wt::WText *_noComments;
 	Wt::WBoxLayout *layout;

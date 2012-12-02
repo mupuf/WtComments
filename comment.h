@@ -12,6 +12,7 @@ class Comment
 {
 private:
 	Wt::WString _author;
+	Wt::WString _email;
 	Wt::WDate _date;
 	Wt::WTime _time;
 	Wt::WString _msg;
@@ -19,7 +20,8 @@ private:
 	Wt::WString _sessionId;
 public:
 	Comment() { };
-	Comment(const Wt::WString &author, const Wt::WString &msg,
+	Comment(const Wt::WString &author, const Wt::WString &email,
+		const Wt::WString &msg,
 		Wt::WDate date = Wt::WDate::currentServerDate(),
 		Wt::WTime time = Wt::WTime::currentServerTime(),
 		const Wt::WString &clientIP = Wt::WApplication::instance()->environment().clientAddress(),
@@ -27,6 +29,9 @@ public:
 
 	Wt::WString author() const { return _author; };
 	void setAuthor(const Wt::WString &author);
+
+	Wt::WString email() const { return _email; };
+	void setEmail(const Wt::WString &email);
 
 	Wt::WString msg() const { return _msg; };
 	void setMsg(const Wt::WString &msg);

@@ -27,6 +27,9 @@ private:
 	} client;
 	SendEmail sendEmail;
 
+	std::string encodeJSONString(std::string str);
+	std::string decodeJSONString(std::string str);
+
 	/* associate clients to a comment thread */
 	static boost::recursive_mutex thread_clients_mutex;
 	static std::map<Wt::WString, std::vector<Client> > url_clients;
