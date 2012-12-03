@@ -40,8 +40,11 @@ private:
 	std::string getDBFile() const;
 
 	Comment readJSonComment(const Wt::Json::Object &object);
-	std::vector<Comment> readCommentsFromFile();
+	std::string readJSonUnsub(const Wt::Json::Object &object);
+	bool parseFile(std::vector<Comment> &comments, std::vector<std::string> &unsubscribers);
 	void saveNewComment(const Comment &comment);
+
+	std::vector<std::string> emailSubscribers();
 
 	bool validateComment(const Comment &comment, Wt::WString &error) const;
 

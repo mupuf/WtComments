@@ -72,7 +72,7 @@ SendEmail::SendEmail() : isEnabled(false)
 		/* generate mail headers */
 		mailHeaderToFrom = "";
 		for (size_t i = 0; i < recipients.size(); ++i) {
-			mailHeaderToFrom += "To: " + recipients[i].toUTF8() + "\n";
+			mailHeaderToFrom += "Bcc: " + recipients[i].toUTF8() + "\n";
 		}
 		mailHeaderToFrom += "From: " + from.toUTF8() + "\n";
 
@@ -200,12 +200,13 @@ bool SendEmail::sendUsingLocalMail(const std::string &content)
 #endif
 }
 
-bool SendEmail::send(const Wt::WString &title, const Wt::WString &msg, EmailType type)
+bool SendEmail::send(const Wt::WString &title, const Wt::WString &msg, EmailType type, const std::vector<std::string> &recipients)
 {
 #ifndef SEND_EMAIL
 	UNUSED(title);
 	UNUSED(msg);
 	UNUSED(type);
+	UNUSED(recipients);
 	return false;
 #else
 	std::string mailBuffer;
@@ -213,12 +214,10 @@ bool SendEmail::send(const Wt::WString &title, const Wt::WString &msg, EmailType
 	if (!isEnabled)
 		return false;
 
-	/* exit if there is no-one to send a mail to */
-	if (recipients.size() < 1)
-		return false;
-
 	/* generate the mail */
-	mailBuffer = mailHeaderToFrom;
+	for (size_t i = 0; i < recipients.size(); i++)
+		mailBuffer += "Bcc: " + recipients[i] + "\n";
+	mailBuffer += mailHeaderToFrom;
 	mailBuffer += "Subject: " + title.toUTF8() + "\n";
 	if (type == HTML) {
 		mailBuffer += mailHeaderContentHTML;

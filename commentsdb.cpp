@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <set>
 
 boost::recursive_mutex CommentsDB::thread_clients_mutex;
 std::map<Wt::WString, std::vector<CommentsDB::Client> > CommentsDB::url_clients;
@@ -58,9 +59,15 @@ Comment CommentsDB::readJSonComment(const Wt::Json::Object &object)
 			clientAddress, sessionId);
 }
 
-std::vector<Comment> CommentsDB::readCommentsFromFile()
+std::string CommentsDB::readJSonUnsub(const Wt::Json::Object &object)
 {
-	std::vector<Comment> comments;
+	const Wt::WString &email = readJSONValue<Wt::WString>(object, "email", "");
+
+	return decodeJSONString(email.toUTF8());
+}
+
+bool CommentsDB::parseFile(std::vector<Comment> &comments, std::vector<std::string> &unsubscribers)
+{
 	std::string file;
 
 	/* read the file */
@@ -76,23 +83,28 @@ std::vector<Comment> CommentsDB::readCommentsFromFile()
 	}
 	else {
 		std::cerr << "The file '" + getDBFile() + "' cannot be opened" << std::endl;
-		return comments;
+		return false;
 	}
 
 	if (file.size() == 0) {
 		std::cerr << "The file '" + getDBFile() + "' is empty" << std::endl;
-		return comments;
+		return false;
 	}
 
 	/* parse the file we read */
 	try {
 		Wt::Json::Object result;
 		Wt::Json::parse(file, result);
-		const Wt::Json::Array& jsonComments = readJSONValue<Wt::Json::Array>(result, "comments", Wt::Json::Array());
 
 		/* parse the comments we read */
+		const Wt::Json::Array& jsonComments = readJSONValue<Wt::Json::Array>(result, "comments", Wt::Json::Array());
 		for (size_t i = 0; i < jsonComments.size(); i++)
 			comments.push_back(readJSonComment(jsonComments[i]));
+
+		/* parse the unsubscribers we read */
+		const Wt::Json::Array& jsonUnsub = readJSONValue<Wt::Json::Array>(result, "unsubscribers", Wt::Json::Array());
+		for (size_t i = 0; i < jsonUnsub.size(); i++)
+			unsubscribers.push_back(readJSonUnsub(jsonUnsub[i]));
 	}
 	catch (Wt::WException error)
 	{
@@ -106,15 +118,36 @@ std::vector<Comment> CommentsDB::readCommentsFromFile()
 		sendEmail.send(title, msg, SendEmail::PLAIN);
 	}
 
-	return comments;
+	return true;
+}
+
+std::vector<std::string> CommentsDB::emailSubscribers()
+{
+	std::vector<Comment> comments;
+	std::vector<std::string> unsubs;
+
+	if (!parseFile(comments, unsubs))
+		return std::vector<std::string>();
+
+	std::set<std::string> subs;
+	for (size_t i = 0; i < comments.size(); i++)
+		subs.insert(comments[i].email().toUTF8());
+	for (size_t i = 0; i < unsubs.size(); i++)
+		subs.erase(unsubs[i]);
+
+	return std::vector<std::string>(subs.begin(), subs.end());
 }
 
 void CommentsDB::saveNewComment(const Comment &comment)
 {
+	std::vector<Comment> comments;
+	std::vector<std::string> unsubs;
+
 	boost::recursive_mutex::scoped_lock lock_comments(comments_mutex);
 
 	/* read the current comments */
-	std::vector<Comment> comments = readCommentsFromFile();
+	if (!parseFile(comments, unsubs))
+		return;
 
 	/* add the new comment */
 	comments.push_back(comment);
@@ -124,6 +157,16 @@ void CommentsDB::saveNewComment(const Comment &comment)
 	if (db.is_open())
 	{
 		db << "{" << std::endl;
+		db << "	\"unsubscribers\":" << std::endl;
+		db << "	[" << std::endl;
+		for (size_t i = 0; i < unsubs.size(); i++)
+		{
+			/* replace the " character by it's html equivalent */
+			std::string email = encodeJSONString(unsubs[i]);
+			db << "		{ \"email\": \"" << email << "\" }" << std::endl;
+		}
+		db << "	]," << std::endl << std::endl;
+
 		db << "	\"comments\":" << std::endl;
 		db << "	[" << std::endl;
 
@@ -185,13 +228,14 @@ bool CommentsDB::validateComment(const Comment &comment, Wt::WString &error) con
 	 *       - Implement some kind of capcha validation
 	*/
 
-
 	return true;
 }
 
 CommentsDB::CommentsDB(Wt::WServer &server, const Wt::WString &url, NewCommentCallback cb)
 		: _server(server)
 {
+	std::vector<Comment> comments;
+	std::vector<std::string> unsubs;
 	boost::recursive_mutex::scoped_lock lock(thread_clients_mutex);
 
 	client.sessionID = Wt::WApplication::instance()->sessionId();
@@ -200,8 +244,10 @@ CommentsDB::CommentsDB(Wt::WServer &server, const Wt::WString &url, NewCommentCa
 
 	url_clients[client.url].push_back(client);
 
+	if (!parseFile(comments, unsubs))
+		return;
+
 	/* display the comments */
-	std::vector<Comment> comments = readCommentsFromFile();
 	for (size_t i = 0; i < comments.size(); i++)
 		client.cb(comments[i]);
 }
@@ -244,7 +290,7 @@ bool CommentsDB::postComment(const Comment &comment, Wt::WString &error)
 	/* email */
 	Wt::WString msg = "<p>Hi MuPuF.org users!</p><p>There is a new comment from '{1}' on article <a href=\"{2}\">{2}</a>:</p>------------------------------{3}";
 	msg = msg.arg(comment.author()).arg(client.url).arg(comment.msg());
-	sendEmail.send("New comment on " + client.url, msg);
+	sendEmail.send("[MuPuF.org] New comment on " + client.url, msg, SendEmail::HTML, emailSubscribers());
 
 	return true;
 }
