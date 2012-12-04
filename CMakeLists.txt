@@ -35,6 +35,10 @@ if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE "Release")
 endif(NOT CMAKE_BUILD_TYPE)
 
+if(NOT WEBSITE)
+	set(WEBSITE "NoName")
+endif(NOT WEBSITE)
+
 # Boost
 SET(Boost_ADDITIONAL_VERSIONS
   "1.35" "1.36" "1.37" "1.38" "1.39"
@@ -75,6 +79,9 @@ if (SEND_EMAIL)
 	endif (LIBCURL_FOUND)
 endif (SEND_EMAIL)
 
+#
+add_definitions("-DWEBSITE=\"${WEBSITE}\"")
+
 # Output binary
 file(GLOB wtcomments_SOURCES "*.cpp" "*.h")
 add_executable(wtcomments ${wtcomments_SOURCES})
@@ -82,6 +89,8 @@ target_link_libraries(wtcomments ${Wt_LIBRARY} ${Wt_CONNECTOR} ${Boost_LIBRARIES
 
 message("")
 message ("-- Summary --")
+message("	Website name                             : ${WEBSITE} (-DWEBSITE=...)")
+message("")
 message("	Build type                               : ${CMAKE_BUILD_TYPE} (-DCMAKE_BUILD_TYPE)")
 message("	Wt connector, use HTTP instead of FCGI   : ${USE_CON_HTTP} (-DUSE_CON_HTTP)")
 message("	Send emails when receiving a new comment : ${SEND_EMAIL} (-DSEND_EMAIL)")

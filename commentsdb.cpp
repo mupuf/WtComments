@@ -330,12 +330,12 @@ bool CommentsDB::postComment(const Comment &comment, Wt::WString &error)
 	/* email */
 	Wt::WString url = env.urlScheme() + "://" + env.hostName() + env.deploymentPath() + "?url=" + client.thread;
 	Wt::WString url_unsub = url + "&unsub=1";
-	Wt::WString msg = "<p>Hi MuPuF.org users!</p>" \
+	Wt::WString msg = "<p>Hi "WEBSITE" users!</p>" \
 			  "<p>There is a new comment from '{1}' on article <a href=\"{2}\">{2}</a>:</p>" \
 			  "<p>If you don't want to unsubscribe from the notification list, please' <a href=\"{3}\">unsubscribe</a>.</p>" \
 			  "<p>------------------------------</p>{4}";
 	msg = msg.arg(comment.author()).arg(url).arg(url_unsub).arg(comment.msg());
-	sendEmail.send("[MuPuF.org] New comment at " + client.thread, msg, SendEmail::HTML, emailSubscribers(), true);
+	sendEmail.send("["WEBSITE"] New comment at " + client.thread, msg, SendEmail::HTML, emailSubscribers(), true);
 
 	return true;
 }
@@ -363,14 +363,14 @@ bool CommentsDB::unsubscribe(const std::string &email, Wt::WString &error)
 		return false;
 
 	/* email */
-	Wt::WString msg = "<p>Hi MuPuF.org user!</p>" \
+	Wt::WString msg = "<p>Hi "WEBSITE" user!</p>" \
 			"<p>Your unsubscription has been taken into account on thread '{1}'</p>";
 	msg = msg.arg(client.thread);
 
 	std::vector<std::string> to;
 	to.push_back(email);
 
-	sendEmail.send("[MuPuF.org] Unsubscribing to the thread " + client.thread, msg, SendEmail::HTML, to, false);
+	sendEmail.send("["WEBSITE"] Unsubscribing to the thread " + client.thread, msg, SendEmail::HTML, to, false);
 
 	return true;
 }
