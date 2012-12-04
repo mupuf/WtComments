@@ -23,7 +23,8 @@ private:
 	{
 		std::string sessionID;
 		NewCommentCallback cb;
-		Wt::WString url;
+		Wt::WString full_url;
+		Wt::WString thread;
 	} client;
 	SendEmail sendEmail;
 
@@ -39,9 +40,14 @@ private:
 	std::string getDBDirectory() const;
 	std::string getDBFile() const;
 
+	bool checkUnsubscribers(std::vector<Comment> &comments,
+				std::vector<std::string> &unsubscribers,
+				const std::string &email, Wt::WString &error);
+
 	Comment readJSonComment(const Wt::Json::Object &object);
 	std::string readJSonUnsub(const Wt::Json::Object &object);
 	bool parseFile(std::vector<Comment> &comments, std::vector<std::string> &unsubscribers);
+	bool saveFile(std::vector<Comment> &comments, std::vector<std::string> &unsubscribers);
 	void saveNewComment(const Comment &comment);
 
 	std::vector<std::string> emailSubscribers();
@@ -52,6 +58,7 @@ public:
 	CommentsDB(Wt::WServer &server, const Wt::WString &url, NewCommentCallback cb);
 	~CommentsDB();
 	bool postComment(const Comment &comment, Wt::WString &error);
+	bool unsubscribe(const std::string &email, Wt::WString &error);
 };
 
 #endif // COMMENTSDB_H

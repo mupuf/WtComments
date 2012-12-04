@@ -4,6 +4,7 @@
 
 #include <Wt/WServer>
 #include <Wt/WApplication>
+#include <Wt/WEnvironment>
 #include <Wt/Json/Object>
 #include <Wt/Json/Parser>
 #include <Wt/Json/Array>
@@ -20,7 +21,7 @@ boost::recursive_mutex CommentsDB::comments_mutex;
 
 std::string CommentsDB::getDBFile() const
 {
-	std::string url = client.url.toUTF8();
+	std::string url = client.thread.toUTF8();
 	strReplace(url, "/", "|");
 	return "./db/" + url + ".json";
 }
@@ -112,7 +113,7 @@ bool CommentsDB::parseFile(std::vector<Comment> &comments, std::vector<std::stri
 
 		/* email */
 		Wt::WString msg, title = "Error while parsing thread '{1}':";
-		title = title.arg(client.url);
+		title = title.arg(client.thread);
 		msg = "{1}\n\nError = '{2}'\n\nFile = '{3}'";
 		msg.arg(title).arg(error.what()).arg(file);
 		sendEmail.send(title, msg, SendEmail::PLAIN);
@@ -121,37 +122,8 @@ bool CommentsDB::parseFile(std::vector<Comment> &comments, std::vector<std::stri
 	return true;
 }
 
-std::vector<std::string> CommentsDB::emailSubscribers()
+bool CommentsDB::saveFile(std::vector<Comment> &comments, std::vector<std::string> &unsubscribers)
 {
-	std::vector<Comment> comments;
-	std::vector<std::string> unsubs;
-
-	if (!parseFile(comments, unsubs))
-		return std::vector<std::string>();
-
-	std::set<std::string> subs;
-	for (size_t i = 0; i < comments.size(); i++)
-		subs.insert(comments[i].email().toUTF8());
-	for (size_t i = 0; i < unsubs.size(); i++)
-		subs.erase(unsubs[i]);
-
-	return std::vector<std::string>(subs.begin(), subs.end());
-}
-
-void CommentsDB::saveNewComment(const Comment &comment)
-{
-	std::vector<Comment> comments;
-	std::vector<std::string> unsubs;
-
-	boost::recursive_mutex::scoped_lock lock_comments(comments_mutex);
-
-	/* read the current comments */
-	if (!parseFile(comments, unsubs))
-		return;
-
-	/* add the new comment */
-	comments.push_back(comment);
-
 	/* write the comments to the file */
 	std::ofstream db(getDBFile().c_str());
 	if (db.is_open())
@@ -159,10 +131,10 @@ void CommentsDB::saveNewComment(const Comment &comment)
 		db << "{" << std::endl;
 		db << "	\"unsubscribers\":" << std::endl;
 		db << "	[" << std::endl;
-		for (size_t i = 0; i < unsubs.size(); i++)
+		for (size_t i = 0; i < unsubscribers.size(); i++)
 		{
 			/* replace the " character by it's html equivalent */
-			std::string email = encodeJSONString(unsubs[i]);
+			std::string email = encodeJSONString(unsubscribers[i]);
 			db << "		{ \"email\": \"" << email << "\" }" << std::endl;
 		}
 		db << "	]," << std::endl << std::endl;
@@ -196,7 +168,74 @@ void CommentsDB::saveNewComment(const Comment &comment)
 
 		/* TODO: find a way to fsync! */
 		db.close();
+
+		return true;
+	} else
+		return false;
+}
+
+std::vector<std::string> CommentsDB::emailSubscribers()
+{
+	std::vector<Comment> comments;
+	std::vector<std::string> unsubs;
+
+	if (!parseFile(comments, unsubs))
+		return std::vector<std::string>();
+
+	std::set<std::string> subs;
+	for (size_t i = 0; i < comments.size(); i++)
+		subs.insert(comments[i].email().toUTF8());
+
+	/* get rid of invalid emails */
+	subs.erase("");
+
+	for (size_t i = 0; i < unsubs.size(); i++)
+		subs.erase(unsubs[i]);
+
+	return std::vector<std::string>(subs.begin(), subs.end());
+}
+
+bool CommentsDB::checkUnsubscribers(std::vector<Comment> &comments,
+		      std::vector<std::string> &unsubscribers,
+		      const std::string &email, Wt::WString &error)
+{
+	std::set<std::string> subs;
+	for (size_t i = 0; i < comments.size(); i++)
+		subs.insert(comments[i].email().toUTF8());
+
+	if (!subs.erase(email)) {
+		error = "The email '" + email + "' wasn't subscribed";
+		return false;
 	}
+
+	subs.clear();
+	for (size_t i = 0; i < unsubscribers.size(); i++)
+		subs.insert(unsubscribers[i]);
+
+	if (subs.erase(email)) {
+		error = "The email '" + email + "' was already unsubscribed";
+		return false;
+	}
+
+	return true;
+}
+
+void CommentsDB::saveNewComment(const Comment &comment)
+{
+	std::vector<Comment> comments;
+	std::vector<std::string> unsubs;
+
+	boost::recursive_mutex::scoped_lock lock_comments(comments_mutex);
+
+	/* read the current comments */
+	if (!parseFile(comments, unsubs))
+		return;
+
+	/* add the new comment */
+	comments.push_back(comment);
+
+	/* save the new file */
+	saveFile(comments, unsubs);
 }
 
 bool CommentsDB::validateComment(const Comment &comment, Wt::WString &error) const
@@ -240,9 +279,9 @@ CommentsDB::CommentsDB(Wt::WServer &server, const Wt::WString &url, NewCommentCa
 
 	client.sessionID = Wt::WApplication::instance()->sessionId();
 	client.cb = cb;
-	client.url = url;
+	client.thread = url;
 
-	url_clients[client.url].push_back(client);
+	url_clients[client.thread].push_back(client);
 
 	if (!parseFile(comments, unsubs))
 		return;
@@ -257,10 +296,10 @@ CommentsDB::~CommentsDB()
 	boost::recursive_mutex::scoped_lock lock(thread_clients_mutex);
 
 	/* erase the client from the client DB */
-	std::vector<Client> clients = url_clients[client.url];
+	std::vector<Client> clients = url_clients[client.thread];
 	for (size_t i = 0; i < clients.size(); i++) {
 		if (client.sessionID == clients[i].sessionID) {
-			url_clients[client.url].erase(url_clients[client.url].begin() + i);
+			url_clients[client.thread].erase(url_clients[client.thread].begin() + i);
 			return;
 		}
 	}
@@ -268,6 +307,7 @@ CommentsDB::~CommentsDB()
 
 bool CommentsDB::postComment(const Comment &comment, Wt::WString &error)
 {
+	const Wt::WEnvironment& env = Wt::WApplication::instance()->environment();
 	boost::recursive_mutex::scoped_lock lock_thread(thread_clients_mutex);
 	boost::recursive_mutex::scoped_lock lock_comments(comments_mutex);
 
@@ -278,7 +318,7 @@ bool CommentsDB::postComment(const Comment &comment, Wt::WString &error)
 	saveNewComment(comment);
 
 	/* warn the other clients that there is a new comment */
-	std::vector<Client> clients = url_clients[client.url];
+	std::vector<Client> clients = url_clients[client.thread];
 
 	for (size_t i = 0; i < clients.size(); i++) {
 		if (client.sessionID == clients[i].sessionID)
@@ -288,9 +328,49 @@ bool CommentsDB::postComment(const Comment &comment, Wt::WString &error)
 	}
 
 	/* email */
-	Wt::WString msg = "<p>Hi MuPuF.org users!</p><p>There is a new comment from '{1}' on article <a href=\"{2}\">{2}</a>:</p>------------------------------{3}";
-	msg = msg.arg(comment.author()).arg(client.url).arg(comment.msg());
-	sendEmail.send("[MuPuF.org] New comment on " + client.url, msg, SendEmail::HTML, emailSubscribers());
+	Wt::WString url = env.urlScheme() + "://" + env.hostName() + env.deploymentPath() + "?url=" + client.thread;
+	Wt::WString url_unsub = url + "&unsub=1";
+	Wt::WString msg = "<p>Hi MuPuF.org users!</p>" \
+			  "<p>There is a new comment from '{1}' on article <a href=\"{2}\">{2}</a>:</p>" \
+			  "<p>If you don't want to unsubscribe from the notification list, please' <a href=\"{3}\">unsubscribe</a>.</p>" \
+			  "<p>------------------------------</p>{4}";
+	msg = msg.arg(comment.author()).arg(url).arg(url_unsub).arg(comment.msg());
+	sendEmail.send("[MuPuF.org] New comment at " + client.thread, msg, SendEmail::HTML, emailSubscribers(), true);
+
+	return true;
+}
+
+bool CommentsDB::unsubscribe(const std::string &email, Wt::WString &error)
+{
+	std::vector<Comment> comments;
+	std::vector<std::string> unsubs;
+
+	boost::recursive_mutex::scoped_lock lock_thread(thread_clients_mutex);
+	boost::recursive_mutex::scoped_lock lock_comments(comments_mutex);
+
+	/* read the current comments */
+	if (!parseFile(comments, unsubs))
+		return false;
+
+	/* add the new unsubscriber */
+	if (checkUnsubscribers(comments, unsubs, email, error))
+		unsubs.push_back(email);
+	else
+		return false;
+
+	/* save the new file */
+	if (!saveFile(comments, unsubs))
+		return false;
+
+	/* email */
+	Wt::WString msg = "<p>Hi MuPuF.org user!</p>" \
+			"<p>Your unsubscription has been taken into account on thread '{1}'</p>";
+	msg = msg.arg(client.thread);
+
+	std::vector<std::string> to;
+	to.push_back(email);
+
+	sendEmail.send("[MuPuF.org] Unsubscribing to the thread " + client.thread, msg, SendEmail::HTML, to, false);
 
 	return true;
 }

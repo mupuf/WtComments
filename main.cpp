@@ -1,4 +1,5 @@
 #include "view.h"
+#include "unsubscribe.h"
 #include "util.h"
 
 #include <Wt/WEnvironment>
@@ -19,8 +20,13 @@ std::string getValueFromEnv(const Wt::WEnvironment& env,
 Wt::WApplication *createApplication(const Wt::WEnvironment& env,
 					Wt::WServer &server)
 {
-	std::string thread = getValueFromEnv(env, "url", "/default");
-	return new View(env, server, thread);
+	std::string thread = getValueFromEnv(env, "url", "default");
+	std::string unsub = getValueFromEnv(env, "unsub", "0");
+
+	if (unsub == "1")
+		return new Unsubscribe(env, server, thread);
+	else
+		return new View(env, server, thread);
 }
 
 int main(int argc, char **argv)

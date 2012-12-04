@@ -20,14 +20,11 @@ private:
 
 	std::auto_ptr<CommentsDB> db;
 
-	std::string getValueFromEnv(const Wt::WEnvironment& env,
-				const std::string &key,
-				const std::string &defaultValue = std::string()) const;
 	void postComment();
 	void drawComment(const Comment &comment);
 
 public:
-	View(const Wt::WEnvironment &env, Wt::WServer &server, std::string &thread);
+	View(const Wt::WEnvironment &env, Wt::WServer &server, std::string &url);
 };
 
 #endif // VIEW_H

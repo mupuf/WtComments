@@ -30,7 +30,9 @@ public:
 
 	SendEmail();
 
-	bool send(const Wt::WString &title, const Wt::WString &msg, EmailType type = HTML, const std::vector<std::string> &recipients = std::vector<std::string>());
+	bool send(const Wt::WString &title, const Wt::WString &msg, EmailType type = HTML,
+		  const std::vector<std::string> &recipients = std::vector<std::string>(),
+		  bool warnAdmins=true);
 };
 
 #endif // SENDEMAIL_H

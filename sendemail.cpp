@@ -200,13 +200,14 @@ bool SendEmail::sendUsingLocalMail(const std::string &content)
 #endif
 }
 
-bool SendEmail::send(const Wt::WString &title, const Wt::WString &msg, EmailType type, const std::vector<std::string> &recipients)
+bool SendEmail::send(const Wt::WString &title, const Wt::WString &msg, EmailType type, const std::vector<std::string> &recipients, bool warnAdmins)
 {
 #ifndef SEND_EMAIL
 	UNUSED(title);
 	UNUSED(msg);
 	UNUSED(type);
 	UNUSED(recipients);
+	UNUSED(warnAdmins);
 	return false;
 #else
 	std::string mailBuffer;
@@ -217,7 +218,12 @@ bool SendEmail::send(const Wt::WString &title, const Wt::WString &msg, EmailType
 	/* generate the mail */
 	for (size_t i = 0; i < recipients.size(); i++)
 		mailBuffer += "Bcc: " + recipients[i] + "\n";
-	mailBuffer += mailHeaderToFrom;
+
+	if (warnAdmins)
+		mailBuffer += mailHeaderToFrom;
+	else
+		mailBuffer += "From: " + from.toUTF8() + "\n";
+
 	mailBuffer += "Subject: " + title.toUTF8() + "\n";
 	if (type == HTML) {
 		mailBuffer += mailHeaderContentHTML;
@@ -228,7 +234,7 @@ bool SendEmail::send(const Wt::WString &title, const Wt::WString &msg, EmailType
 
 	if (smtp_server == "local")
 		return sendUsingLocalMail(mailBuffer);
-
-	return sendUsingCurl(mailBuffer);
+	else
+		return sendUsingCurl(mailBuffer);
 #endif
 }
