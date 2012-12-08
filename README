@@ -124,6 +124,14 @@ Please launch this project with the following command line:
 
 Then open the url http://127.0.0.1:9090 and enjoy!
 
+If you want to use Wt's internal web server but would like to hide this away
+from your visitors, you can set up your primary web server as a reverse proxy.
+On nginx, add something like this to your virtual host:
+
+        location /comments.wt {
+                proxy_pass         http://127.0.0.1:9090/;
+        }
+
 ### Using fastcgi
 If you decide to use this mode, this means that you compiled WtComments with the
 option USE_CON_HTTP=OFF. If not, recompile it with this option.
@@ -150,7 +158,6 @@ This will spawn the FCGI service on port 9666.
 If you're using systemd, have a look at systemd/README for a cleaner way to
 manage this fcgi process.
 
-
 You then need to configure your http server to actually make use of this binary.
 On nginx, add something like that to your virtualhost, if your fcgi is listening
 on localhost:9666 like the example above:
@@ -158,7 +165,6 @@ on localhost:9666 like the example above:
         location /comments.wt {
                 include /etc/nginx/fastcgi.conf;
                 fastcgi_pass   localhost:9666;
-
         }
 
 or if you're using unix sockets (default config in the systemd service unit):

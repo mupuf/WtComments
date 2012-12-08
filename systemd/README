@@ -8,15 +8,21 @@ simply put the wtcomments.conf file in /etc/tmpfiles.d/
 
 ## systemd service unit
 
-In order to use systemd to launch spawn-fcgi which spawn wtcomments' fcgi
-process, copy wtcomments.service to /etc/systemd/system/.
+There are several systemd units that you can use according to how you compiled wt:
+
+* wtcomments_http.service: For wt applications compiled with the built-in http server
+* wtcomments_fcgi_port.service: For fcgi wt applications using port 9666 for communicating with the web server
+* wtcomments_fcgi_socket.service: For fcgi wt applications using a UNIX socket for communicating with the web server
+
+In order to use systemd to launch wtcomments, copy the wanted service file
+to /etc/systemd/system/.
 
 Then reload systemd unit files with:
 # systemctl --system daemon-reload
 
 To start it, use:
-# systemct start wtcomments.service
+# systemct start <wanted service>.service
 
 And to enable it for startup at boot:
-# systemctl enable wtcomments.service
+# systemctl enable <wanted service>.service
 
