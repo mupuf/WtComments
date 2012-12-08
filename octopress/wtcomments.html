@@ -3,15 +3,21 @@
 	prevReportedHeight = 0;
 	function autoResize(id){
 		var newheight;
-		var firefoxOffset = 50; // Firefox seems to report a value smaller than the actual size
 		if(document.getElementById){
-			newheight=document.getElementById(id).contentWindow.document.body.scrollHeight;
-			if ((newheight - firefoxOffset) > prevReportedHeight) {
-				document.getElementById(id).height = (newheight + firefoxOffset) + "px";
+			var frame_body = document.getElementById(id).contentWindow.document.body;
+
+			var div_count_no_comments = 12;
+			var div_count_per_comment = 4;
+			var comments_cnt = (frame_body.getElementsByTagName("div").length - div_count_no_comments) / div_count_per_comment;
+			var additionalMargin = 10 * comments_cnt; // foresee some space for added comments
+
+			newheight=frame_body.scrollHeight;
+			if ((newheight - additionalMargin) > prevReportedHeight) {
+				document.getElementById(id).height = (newheight + additionalMargin) + "px";
 				prevReportedHeight = newheight;
 			}
 		}
 	}
 -->
 </script>
-<iframe src="/comments.wt?url={{site.url}}{{page.url}}" width="100%" height="500px" id="comments" marginheight="0" frameborder="0" onLoad="autoResize('comments'); setInterval(function(){autoResize('comments');}, 500);"></iframe>
+<iframe src="/comments.wt?url={{site.url}}{{page.url}}" width="100%" height="500px" id="comments" marginheight="0" frameborder="0" onLoad="setTimeout(function(){autoResize('comments');}, 1000);"></iframe>
