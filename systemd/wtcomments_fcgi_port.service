@@ -1,0 +1,13 @@
+[Unit]
+Description=Wt-comments fcgi (port) launched by spawn-fcgi
+After=syslog.target network.target remote-fs.target nss-lookup.target
+
+[Service]
+Type=forking
+Restart=on-abort
+PIDFile=/var/run/wt/wtcomments.pid
+ExecStart=/usr/bin/spawn-fcgi -p 9666 -P /var/run/wt/wtcomments.pid -u wtcomments -g wtcomments -M 700 -- /home/wtcomments/wtcomments
+ExecStop=/bin/kill -15 $MAINPID
+
+[Install]
+WantedBy=multi-user.target
