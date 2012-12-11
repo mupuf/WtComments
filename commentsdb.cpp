@@ -204,7 +204,7 @@ bool CommentsDB::checkUnsubscribers(std::vector<Comment> &comments,
 		subs.insert(comments[i].email().toUTF8());
 
 	if (!subs.erase(email)) {
-		error = "The email '" + email + "' wasn't subscribed";
+		error = "The email '" + email + "' was not subscribed";
 		return false;
 	}
 
@@ -332,7 +332,8 @@ bool CommentsDB::postComment(const Comment &comment, Wt::WString &error)
 	Wt::WString url_unsub = url + "&unsub=1";
 	Wt::WString msg = "<p>Hi "WEBSITE" users!</p>" \
 			  "<p>There is a new comment from '{1}' on article <a href=\"{2}\">{2}</a>:</p>" \
-			  "<p>If you don't want to unsubscribe from the notification list, please' <a href=\"{3}\">unsubscribe</a>.</p>" \
+			  "<p>If you don't want to receive mails from the notification list anymore," \
+			  "please' <a href=\"{3}\">unsubscribe</a>.</p>" \
 			  "<p>------------------------------</p>{4}";
 	msg = msg.arg(comment.author()).arg(url).arg(url_unsub).arg(comment.msg());
 	sendEmail.send("["WEBSITE"] New comment at " + client.thread, msg, SendEmail::HTML, emailSubscribers(), true);

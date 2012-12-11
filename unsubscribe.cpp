@@ -18,10 +18,11 @@ void Unsubscribe::unsubscribe()
 	Wt::WString error;
 	if (db->unsubscribe(_editEmail->text().toUTF8(), error)) {
 		Wt::WMessageBox::show("Unsubscription taken into account",
-				"Don't hesitate to tell us why you unsubscribed!", Wt::Ok);
+				"Please, do not hesitate to tell us why you unsubscribed!",
+				Wt::Ok);
 		_editEmail->setText("");
 	} else
-		Wt::WMessageBox::show("An error occured while unsubscribing ",
+		Wt::WMessageBox::show("An error occurred while unsubscribing ",
 				error, Wt::Ok);
 }
 
@@ -33,7 +34,7 @@ Unsubscribe::Unsubscribe(const Wt::WEnvironment& env, Wt::WServer &server, std::
 	app->setLoadingIndicator(new Wt::WOverlayLoadingIndicator());
 
 	/* Set the title */
-	setTitle("Unsubscribe to comments for the thread \"" + url + "\"");
+	setTitle("Unsubscribe to comments from the thread \"" + url + "\"");
 
 	Wt::WPushButton *button = new Wt::WPushButton("Unsubscribe");
 	button->setId("btn_unsub");
