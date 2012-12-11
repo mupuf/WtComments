@@ -3,10 +3,13 @@ Description=Wt-comments running the built-in http server
 After=syslog.target network.target remote-fs.target nss-lookup.target
 
 [Service]
-Type=forking
+User=wtcomments
+Group=wtcomments
+Umask=007
+Type=simple
 Restart=on-abort
 PIDFile=/var/run/wt/wtcomments.pid
-ExecStart=/bin/su - wtcomments -c "nohup ./wtcomments -p /var/run/wt/wtcomments.pid --docroot /usr/share/Wt/ --http-address 0.0.0.0 --http-port 9090&"
+ExecStart=./wtcomments -p /var/run/wt/wtcomments.pid --docroot /usr/share/Wt/ --http-address 0.0.0.0 --http-port 9090
 ExecStop=/bin/kill -15 $MAINPID
 
 [Install]
