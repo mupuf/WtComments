@@ -327,12 +327,17 @@ bool CommentsDB::postComment(const Comment &comment, Wt::WString &error)
 	}
 
 	/* email */
-	Wt::WString url = env.urlScheme() + "://" + env.hostName() + env.deploymentPath() + "?url=" + client.thread;
+#ifdef WEBSITE_URL
+	Wt::WString hostName = WEBSITE_URL;
+#else
+	Wt::WString hostName = env.hostName();
+#endif
+	Wt::WString url = env.urlScheme() + "://" + hostName + env.deploymentPath() + "?url=" + client.thread;
 	Wt::WString url_unsub = url + "&unsub=1";
 	Wt::WString msg = "<p>Hi "WEBSITE" users!</p>" \
 			  "<p>There is a new comment from '{1}' on article <a href=\"{2}\">{2}</a>:</p>" \
-			  "<p>If you don't want to receive mails from the notification list anymore," \
-			  "please' <a href=\"{3}\">unsubscribe</a>.</p>" \
+			  "<p>If you don't want to receive mails from the notification list anymore, " \
+			  "please <a href=\"{3}\">unsubscribe</a>.</p>" \
 			  "<p>------------------------------</p>{4}";
 	msg = msg.arg(comment.author()).arg(url).arg(url_unsub).arg(comment.msg());
 	sendEmail.send("["WEBSITE"] New comment at " + client.thread, msg, SendEmail::HTML, emailSubscribers(), true);
@@ -370,7 +375,7 @@ bool CommentsDB::unsubscribe(const std::string &email, Wt::WString &error)
 	std::vector<std::string> to;
 	to.push_back(email);
 
-	sendEmail.send("["WEBSITE"] Unsubscribing to the thread " + client.thread, msg, SendEmail::HTML, to, false);
+	sendEmail.send("["WEBSITE"] Unsubscribing to thread " + client.thread, msg, SendEmail::HTML, to, false);
 
 	return true;
 }

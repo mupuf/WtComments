@@ -81,6 +81,9 @@ endif (SEND_EMAIL)
 
 #
 add_definitions("-DWEBSITE=\"${WEBSITE}\"")
+if (WEBSITE_URL)
+	add_definitions("-DWEBSITE_URL=\"${WEBSITE_URL}\"")
+endif (WEBSITE_URL)
 
 # Output binary
 file(GLOB wtcomments_SOURCES "*.cpp" "*.h")
@@ -90,6 +93,7 @@ target_link_libraries(wtcomments ${Wt_LIBRARY} ${Wt_CONNECTOR} ${Boost_LIBRARIES
 message("")
 message ("-- Summary --")
 message("	Website name                             : ${WEBSITE} (-DWEBSITE=...)")
+message("	Website URL                              : ${WEBSITE_URL} (-DWEBSITE_URL=...)")
 message("")
 message("	Build type                               : ${CMAKE_BUILD_TYPE} (-DCMAKE_BUILD_TYPE)")
 message("	Wt connector, use HTTP instead of FCGI   : ${USE_CON_HTTP} (-DUSE_CON_HTTP)")
