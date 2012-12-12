@@ -228,8 +228,7 @@ void CommentsDB::saveNewComment(const Comment &comment)
 	boost::recursive_mutex::scoped_lock lock_comments(comments_mutex);
 
 	/* read the current comments */
-	if (!parseFile(comments, unsubs))
-		return;
+	parseFile(comments, unsubs);
 
 	/* add the new comment */
 	comments.push_back(comment);
