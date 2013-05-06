@@ -14,7 +14,11 @@ class View : public Wt::WApplication
 private:
 	Wt::WLineEdit *_editAuthor;
 	Wt::WLineEdit *_editEmail;
+#ifdef USE_SIMPLE_EDITOR
+	Wt::WTextArea *_editMsg;
+#else
 	Wt::WTextEdit *_editMsg;
+#endif
 	Wt::WText *_noComments;
 	Wt::WBoxLayout *layout;
 

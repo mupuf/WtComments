@@ -65,6 +65,12 @@ else (USE_CON_HTTP)
 	SET (Wt_CONNECTOR "${Wt_FCGI_LIBRARY}")
 endif (USE_CON_HTTP)
 
+# Use a simple TextArea for comment edition
+option(USE_SIMPLE_EDITOR "Use a simple text editor instead of TinyMCE" OFF)
+if (USE_SIMPLE_EDITOR)
+	add_definitions("-DUSE_SIMPLE_EDITOR")
+endif (USE_SIMPLE_EDITOR)
+
 # Select the connector (FCGI by default)
 option(SEND_EMAIL "Email support in Wt-comments" OFF)
 if (SEND_EMAIL)
@@ -97,5 +103,10 @@ message("	Website URL                              : ${WEBSITE_URL} (-DWEBSITE_U
 message("")
 message("	Build type                               : ${CMAKE_BUILD_TYPE} (-DCMAKE_BUILD_TYPE)")
 message("	Wt connector, use HTTP instead of FCGI   : ${USE_CON_HTTP} (-DUSE_CON_HTTP)")
+if (USE_SIMPLE_EDITOR)
+message("        Using a simple editor                    : Yes")
+else (USE_SIMPLE_EDITOR)
+message("        Using a simple editor                    : No")
+endif (USE_SIMPLE_EDITOR)
 message("	Send emails when receiving a new comment : ${SEND_EMAIL} (-DSEND_EMAIL)")
 message ("")

@@ -7,7 +7,11 @@
 #include <Wt/WPushButton>
 #include <Wt/WText>
 #include <Wt/WPanel>
+#ifdef USE_SIMPLE_EDITOR
+#include <Wt/WTextArea>
+#else
 #include <Wt/WTextEdit>
+#endif
 #include <Wt/WDate>
 #include <Wt/WTemplate>
 #include <Wt/WMessageBox>
@@ -89,11 +93,15 @@ View::View(const Wt::WEnvironment& env, Wt::WServer &server, std::string &url) :
 	Wt::WRegExpValidator *emailVal = new Wt::WRegExpValidator("^([a-zA-Z0-9_\\-\\.]+)@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)$", _editEmail);
 	_editEmail->setMinimumSize(Wt::WLength(200), _editEmail->minimumHeight());
 	_editEmail->setValidator(emailVal);
+#ifdef USE_SIMPLE_EDITOR
+	_editMsg = new Wt::WTextArea();
+	_editMsg->setColumns(80);
+#else
 	_editMsg = new Wt::WTextEdit();
 	_editMsg->setConfigurationSetting(std::string("theme_advanced_statusbar_location"), std::string("none")); 
 	_editMsg->setHeight(250);
 	_editMsg->setToolBar(0, "bold, italic, underline, |, fontsizeselect, |, justifyleft, justifycenter, justifyright, justifyfull, |, indent, outdent, |, numlist, bullist, |,link, image, blockquote, code");
-
+#endif
 	Wt::WTemplate *t = new Wt::WTemplate();
 	t->setTemplateText("<hr width=\"80%\" />" \
 		"<div>"
@@ -104,6 +112,7 @@ View::View(const Wt::WEnvironment& env, Wt::WServer &server, std::string &url) :
 			"${send_btn}"
 		"</div>"
 	);
+
 	t->setId("send_comment");
 	app->styleSheet().addRule("#send_comment", "width: 90%; margin: auto;");
 	t->bindWidget("author-edit", _editAuthor);
