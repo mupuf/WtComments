@@ -40,12 +40,13 @@ if(NOT WEBSITE)
 endif(NOT WEBSITE)
 
 # Boost
+option(BOOST_STATIC_LINK "Use boost static linkage" OFF)
 SET(Boost_ADDITIONAL_VERSIONS
   "1.35" "1.36" "1.37" "1.38" "1.39"
   "1.40" "1.41" "1.42" "1.43" "1.44" "1.45" "1.46" "1.47" "1.48" "1.49"
   "1.50" "1.51" "1.52" "1.53" "1.54" "1.55" "1.56" "1.57" "1.58" "1.59")
 set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_STATIC_LIBS ${BOOST_STATIC_LINK})
 find_package(Boost 1.35 COMPONENTS signals thread system REQUIRED)
 link_directories ( ${Boost_LIBRARY_DIRS} )
 include_directories ( ${Boost_INCLUDE_DIRS} )
@@ -102,11 +103,14 @@ message("	Website name                             : ${WEBSITE} (-DWEBSITE=...)"
 message("	Website URL                              : ${WEBSITE_URL} (-DWEBSITE_URL=...)")
 message("")
 message("	Build type                               : ${CMAKE_BUILD_TYPE} (-DCMAKE_BUILD_TYPE)")
+message("	Boost static linkage                     : ${Boost_USE_STATIC_LIBS} (-DBOOST_STATIC_LINK)")
+message("")
+message("	Options:")
 message("	Wt connector, use HTTP instead of FCGI   : ${USE_CON_HTTP} (-DUSE_CON_HTTP)")
 if (USE_SIMPLE_EDITOR)
-message("        Using a simple editor                    : Yes")
+message("	Using a simple editor                    : Yes")
 else (USE_SIMPLE_EDITOR)
-message("        Using a simple editor                    : No")
+message("	Using a simple editor                    : No")
 endif (USE_SIMPLE_EDITOR)
 message("	Send emails when receiving a new comment : ${SEND_EMAIL} (-DSEND_EMAIL)")
 message ("")
