@@ -160,7 +160,11 @@ bool CommentsDB::saveFile(std::vector<Comment> &comments, std::vector<std::strin
 			db << "\", \"msg\": \"" << msg;
 			db << "\", \"IP\": \"" << comments[i].clientAddress();
 			db << "\", \"sessionId\": \"" << comments[i].sessionId();
-			db << "\" }" << std::endl << std::endl << std::endl;
+
+			if (i < comments.size() - 1)
+				db << "\" }," << std::endl << std::endl << std::endl;
+			else
+				db << "\" }" << std::endl;
 		}
 
 		db << "	]" << std::endl;
