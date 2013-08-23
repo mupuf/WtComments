@@ -22,6 +22,13 @@ boost::recursive_mutex CommentsDB::comments_mutex;
 std::string CommentsDB::getDBFile() const
 {
 	std::string url = client.thread.toUTF8();
+
+	if(url.find("http://") == 0) {
+		url = url.substr(7);
+	} else if (url.find("https://") == 0) {
+		url = url.substr(8);
+	}
+
 	strReplace(url, "/", "|");
 	return "./db/" + url + ".json";
 }

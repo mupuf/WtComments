@@ -197,3 +197,13 @@ Reload the webserver and enjoy!
 ## Octopress integration
 
 Please have a look at octopress/REAME.
+
+## Upgrade notes
+
+Before commit 8869027, comment thread database files were named by the full URL
+including the protocol used to access the comments. Thus if you served your
+blog on both HTTP and HTTPS, comments were split across two files. Starting
+from commit 8869027, the protocol is stripped but Wt-comments won't strip
+previous comment thread filenames. In order to keep old comments you should
+just rename (and eventually merge) those files manually.
+
