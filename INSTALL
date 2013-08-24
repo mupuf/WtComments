@@ -1,0 +1,179 @@
+# Dependencies & Installation
+
+## Wt
+Obviously you need Wt to build and run this project. Only a "minimal" set of
+features is required (no Qt, pango, SQL databases... dependencies). You might
+want to build your own minimal version if the distribution provided one
+includes too many features.
+
+## Building
+Once Wt is installed, you can build this project with:
+
+    $ cd wt-comments
+    $ mkdir build
+    $ cd build
+    $ cmake .. -DUSE_CON_HTTP=ON -DSEND_EMAIL=ON  # example, see below
+    $ make
+
+The most important compilation option is USE_CON_HTTP. If set to OFF, then
+WtComments will be accessible only through FCGI. If the option is set to ON,
+then WtComments will be accessible only through the built-in http server.
+
+Another option is "SEND_EMAIL". This feature is described below.
+
+## Tiny MCE
+In order to use Wt Comments, you'll need to first download tiny MCE:
+http://www.tinymce.com/download/download.php
+
+Always try the latest version first (well, the 3.*.* versions ar least as tiny
+MCE 4.0.* support in Wt is still in progress and expected for Wt 3.3.1) and
+then if it doesn't work, try one of those combinations:
+
+* Wt 3.2.3rc1 and tiny MCE 3.5.7
+* Wt 3.3.0    and tiny MCE 3.5.8
+
+Then, extract tiny MCE and copy the inner tiny_mce folder to
+/usr/share/Wt/resources/. The file /usr/share/Wt/resources/tiny_mce/tiny_mce.js
+should now exist along with other ressources.
+
+## Database
+The comments database is stored as separated JSON files. Each file represents a
+comment thread.
+
+These files are meant to be stored in the db/ folder of wtcomments' binary's
+folder. Please create this folder:
+
+    $ mkdir db/
+
+## Emails
+Wt Comments can warn you and your collaborators when a new comment has been
+posted on your website.
+
+In order to make use of this feature, WtComments should be compiled with the
+option "-DSEND_EMAIL=ON". Then, this option needs to be enabled at run-time by
+creating the file "wt_comments_email.json" in the same directory as WtComments.
+
+Here is an example of the "wt_comments_email.json" file using a remote serveur
+to send emails:
+
+{
+	"enable": true,
+	"verbose": false,
+
+	"smtp_server": "smtp://smtp.myserver.com:587"
+	"login": "my_freaking_login",
+	"pwd": "my_freaking_password",
+
+	"from": "wtcomments@myserver.com",
+	"to":
+	[
+		{ "email": "myadmin1@myserver.com" },
+		{ "email": "myadmin2@myserver.com" }
+	]
+}
+
+And here is an example using a local server (you need the 'mail' command and a
+running postfix/sendmail/qmail server):
+
+{
+	"enable": true,
+	"verbose": false,
+
+	"smtp_server": "local"
+	"login": "",
+	"pwd": "",
+
+	"from": "wtcomments@myserver.com",
+	"to":
+	[
+		{ "email": "myadmin1@myserver.com" },
+		{ "email": "myadmin2@myserver.com" }
+	]
+}
+
+This feature has been successfully tested with GMail and postfix.
+
+
+# Execution
+
+## Using the built-in http server in Wt
+If you decide to use this mode, this means that you compiled WtComments with
+the option USE_CON_HTTP=ON. If not, recompile it with this option.
+
+Please launch this project with the following command line:
+
+    $ ./wtcomments --docroot /usr/share/Wt/ --http-address 0.0.0.0 --http-port 9090
+
+Then open the url http://127.0.0.1:9090 and enjoy!
+
+If you want to use Wt's internal web server but would like to hide this away
+from your visitors, you can set up your primary web server as a reverse proxy.
+On nginx, add something like this to your virtual host:
+
+	location /comments.wt {
+		proxy_pass          http://127.0.0.1:9090/;
+		proxy_http_version  1.1;
+	}
+
+## Using fastcgi
+If you decide to use this mode, this means that you compiled WtComments with
+the option USE_CON_HTTP=OFF. If not, recompile it with this option.
+
+The first thing you need to do before launching WtComments is creating the user
+that will be used when running:
+
+    # useradd -Um wtcomments
+
+You then need to create the folder /var/run/wt and changing its owner to the
+the wtcomments uid by doing so:
+
+    # mkdir /var/run/wt
+    # chown wtcomments:wtcomments /var/run/wt
+
+Now copy the wtcomments binary to /home/wtcomments/ and follow the instruction
+concerning the installation of the database + emails. Then, you can finally
+run WtComments by doing this:
+
+    $ spawn-fcgi -n -a 0.0.0.0 -p 9666 -- /home/wtcomments/wtcomments
+
+This will spawn the FCGI service on port 9666.
+
+If you're using systemd, have a look at systemd/README for a cleaner way to
+manage this fcgi process.
+
+You then need to configure your http server to actually make use of this
+binary.  On nginx, add something like that to your virtualhost, if your fcgi is
+listening on localhost:9666 like the example above:
+
+	location /comments.wt {
+		include       /etc/nginx/fastcgi.conf;
+		fastcgi_pass  localhost:9666;
+	}
+
+or if you're using unix sockets (default config in the systemd service unit):
+
+	location /comments.wt {
+		include  fastcgi_params;
+		gzip     off;
+
+		fastcgi_read_timeout  5m;
+		fastcgi_param  DOCUMENT_ROOT    /home/wtcomments/;
+		fastcgi_param  SCRIPT_FILENAME  /home/wtcomments/wtcomments;
+		fastcgi_pass   unix:/var/run/wt/wtcomments.sock;
+	}
+
+Finally, you need to tell your webserver where are the Wt ressource files:
+
+	location /resources/ {
+		root   /usr/share/Wt/;
+		index  index.html index.htm;
+	}
+
+If you would like this URL to be different from /resources, you'll need to
+change it both in your webserver configuration and in /etc/wt/wt_config.xml by
+changing this line:
+
+	<property name="resourcesURL">resources/</property>
+
+Reload the webserver and enjoy!
+
