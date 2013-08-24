@@ -1,5 +1,6 @@
 #include "view.h"
 
+#include "config.h"
 #include "unsubscribe.h"
 #include "util.h"
 
@@ -33,6 +34,12 @@ Wt::WApplication *createApplication(const Wt::WEnvironment& env,
 
 int main(int argc, char **argv)
 {
+	Config* conf = Config::getConfig();
+	if(conf->readConfigFile() == false) {
+		return 1;
+	}
+	std::cout << "Successfully read configuration file '" + conf->getConfigFileName() + "'\n";
+
 	try {
 		Wt::WServer server(argv[0]);
 
