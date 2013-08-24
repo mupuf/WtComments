@@ -1,18 +1,19 @@
 #include "sendemail.h"
 
-#include <stdio.h>
-#include <sys/wait.h>
-#include <string.h>
-#include <iostream>
-#include <fstream>
-#include <curl/curl.h>
+#include "util.h"
 
+#include <Wt/Json/Array>
 #include <Wt/Json/Object>
 #include <Wt/Json/Parser>
-#include <Wt/Json/Array>
 #include <Wt/Json/Value>
 
-#include "util.h"
+#include <fstream>
+#include <iostream>
+
+#include <curl/curl.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/wait.h>
 
 /* This file is mostly copied from http://curl.haxx.se/libcurl/c/smtp-tls.html */
 

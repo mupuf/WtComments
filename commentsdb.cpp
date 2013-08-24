@@ -1,17 +1,18 @@
 #include "commentsdb.h"
-#include "view.h"
-#include "util.h"
 
-#include <Wt/WServer>
-#include <Wt/WApplication>
-#include <Wt/WEnvironment>
+#include "util.h"
+#include "view.h"
+
+#include <Wt/Json/Array>
 #include <Wt/Json/Object>
 #include <Wt/Json/Parser>
-#include <Wt/Json/Array>
 #include <Wt/Json/Value>
+#include <Wt/WApplication>
+#include <Wt/WEnvironment>
+#include <Wt/WServer>
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <set>
 
 boost::recursive_mutex CommentsDB::thread_clients_mutex;

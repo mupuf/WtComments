@@ -1,9 +1,11 @@
 #include "view.h"
+
 #include "unsubscribe.h"
 #include "util.h"
 
 #include <Wt/WEnvironment>
 #include <Wt/WServer>
+
 #include <signal.h>
 
 std::string getValueFromEnv(const Wt::WEnvironment& env,

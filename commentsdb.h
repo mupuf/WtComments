@@ -1,13 +1,14 @@
-#ifndef COMMENTSDB_H
-#define COMMENTSDB_H
-
-#include <vector>
-#include <map>
-#include <boost/function.hpp>
-#include <boost/thread.hpp>
+#ifndef WTCOMMENTS_COMMENTSDB_H
+#define WTCOMMENTS_COMMENTSDB_H
 
 #include "comment.h"
 #include "sendemail.h"
+
+#include <boost/function.hpp>
+#include <boost/thread.hpp>
+
+#include <map>
+#include <vector>
 
 class View;
 
@@ -61,4 +62,4 @@ public:
 	bool unsubscribe(const std::string &email, Wt::WString &error);
 };
 
-#endif // COMMENTSDB_H
+#endif // WTCOMMENTS_COMMENTSDB_H

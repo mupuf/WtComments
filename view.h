@@ -1,11 +1,11 @@
-#ifndef VIEW_H
-#define VIEW_H
-
-#include <Wt/WApplication>
-#include <Wt/WVBoxLayout>
-#include <Wt/WEnvironment>
+#ifndef WTCOMMENTS_VIEW_H
+#define WTCOMMENTS_VIEW_H
 
 #include "commentsdb.h"
+
+#include <Wt/WApplication>
+#include <Wt/WEnvironment>
+#include <Wt/WVBoxLayout>
 
 #include <memory>
 
@@ -31,4 +31,4 @@ public:
 	View(const Wt::WEnvironment &env, Wt::WServer &server, std::string &url);
 };
 
-#endif // VIEW_H
+#endif // WTCOMMENTS_VIEW_H

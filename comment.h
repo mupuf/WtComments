@@ -1,12 +1,12 @@
-#ifndef COMMENT_H
-#define COMMENT_H
+#ifndef WTCOMMENTS_COMMENT_H
+#define WTCOMMENTS_COMMENT_H
 
-#include <Wt/WString>
-#include <Wt/WDate>
-#include <Wt/WDate>
-#include <Wt/WTime>
 #include <Wt/WApplication>
+#include <Wt/WDate>
+#include <Wt/WDate>
 #include <Wt/WEnvironment>
+#include <Wt/WString>
+#include <Wt/WTime>
 
 class Comment
 {
@@ -49,4 +49,4 @@ public:
 	void setSessionId(const Wt::WString &sessionId);
 };
 
-#endif // COMMENT_H
+#endif // WTCOMMENTS_COMMENT_H

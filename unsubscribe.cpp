@@ -1,12 +1,12 @@
 #include "unsubscribe.h"
 
-#include <Wt/WRegExpValidator>
 #include <Wt/WContainerWidget>
 #include <Wt/WLineEdit>
-#include <Wt/WPushButton>
-#include <Wt/WTemplate>
 #include <Wt/WMessageBox>
 #include <Wt/WOverlayLoadingIndicator>
+#include <Wt/WPushButton>
+#include <Wt/WRegExpValidator>
+#include <Wt/WTemplate>
 
 void Unsubscribe::drawComment(const Comment &)
 {

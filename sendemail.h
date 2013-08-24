@@ -1,9 +1,10 @@
-#ifndef SENDEMAIL_H
-#define SENDEMAIL_H
+#ifndef WTCOMMENTS_SENDEMAIL_H
+#define WTCOMMENTS_SENDEMAIL_H
 
 #include <Wt/WString>
-#include <vector>
+
 #include <sstream>
+#include <vector>
 
 class SendEmail
 {
@@ -35,4 +36,4 @@ public:
 		  bool warnAdmins=true);
 };
 
-#endif // SENDEMAIL_H
+#endif // WTCOMMENTS_SENDEMAIL_H

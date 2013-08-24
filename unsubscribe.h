@@ -1,11 +1,12 @@
-#ifndef UNSUBSCRIBE_H
-#define UNSUBSCRIBE_H
+#ifndef WTCOMMENTS_UNSUBSCRIBE_H
+#define WTCOMMENTS_UNSUBSCRIBE_H
+
+#include "commentsdb.h"
 
 #include <Wt/WApplication>
 #include <Wt/WEnvironment>
-#include <memory>
 
-#include "commentsdb.h"
+#include <memory>
 
 class Unsubscribe : public Wt::WApplication
 {
@@ -20,4 +21,4 @@ public:
 	Unsubscribe(const Wt::WEnvironment &env, Wt::WServer &server, std::string &url);
 };
 
-#endif // UNSUBSCRIBE_H
+#endif // WTCOMMENTS_UNSUBSCRIBE_H

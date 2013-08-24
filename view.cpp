@@ -1,25 +1,26 @@
 #include "view.h"
 
-#include <Wt/WLength>
+#include "util.h"
+
+#include <Wt/WApplication>
 #include <Wt/WBreak>
 #include <Wt/WContainerWidget>
+#include <Wt/WDate>
+#include <Wt/WLength>
 #include <Wt/WLineEdit>
-#include <Wt/WPushButton>
-#include <Wt/WText>
+#include <Wt/WMessageBox>
+#include <Wt/WOverlayLoadingIndicator>
 #include <Wt/WPanel>
+#include <Wt/WPushButton>
+#include <Wt/WRegExpValidator>
+#include <Wt/WTemplate>
+#include <Wt/WText>
+
 #ifdef USE_SIMPLE_EDITOR
 #include <Wt/WTextArea>
 #else
 #include <Wt/WTextEdit>
 #endif
-#include <Wt/WDate>
-#include <Wt/WTemplate>
-#include <Wt/WMessageBox>
-#include <Wt/WApplication>
-#include <Wt/WOverlayLoadingIndicator>
-#include <Wt/WRegExpValidator>
-
-#include "util.h"
 
 void View::drawComment(const Comment &comment)
 {
