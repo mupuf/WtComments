@@ -123,6 +123,7 @@ bool SendEmail::sendUsingCurl(const std::string &content)
 
 		curl_easy_setopt(curl, CURLOPT_READFUNCTION, payload_source);
 		curl_easy_setopt(curl, CURLOPT_READDATA, this);
+		curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
 
 		/* Verbose ? Set to 1 if you want to debug stuff */
 		curl_easy_setopt(curl, CURLOPT_VERBOSE, verbose?1L:0L);
