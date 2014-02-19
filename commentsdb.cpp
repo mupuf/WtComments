@@ -124,6 +124,11 @@ bool CommentsDB::parseFile(std::vector<Comment> &comments, std::vector<std::stri
 		msg = "{1}\n\nError = '{2}'\n\nFile = '{3}'";
 		msg.arg(title).arg(error.what()).arg(file);
 		sendEmail.send(title, msg, SendEmail::PLAIN);
+
+		/* save the file */
+		std::ofstream of((getDBFile()+ "_" + Wt::WDate::currentDate().toString() + "_.sav").toUTF8().c_str());
+		of << file;
+		of.close();
 	}
 
 	return true;
