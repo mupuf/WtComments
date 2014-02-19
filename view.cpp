@@ -98,7 +98,7 @@ View::View(const Wt::WEnvironment& env, Wt::WServer &server, std::string &url) :
 	_editMsg->setColumns(80);
 #else
 	_editMsg = new Wt::WTextEdit();
-	_editMsg->setConfigurationSetting(std::string("theme_advanced_statusbar_location"), std::string("none")); 
+	_editMsg->setConfigurationSetting(std::string("theme_advanced_statusbar_location"), std::string("none"));
 	_editMsg->setHeight(250);
 	_editMsg->setToolBar(0, "bold, italic, underline, |, fontsizeselect, |, justifyleft, justifycenter, justifyright, justifyfull, |, indent, outdent, |, numlist, bullist, |,link, image, blockquote, code");
 #endif

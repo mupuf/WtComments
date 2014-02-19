@@ -102,7 +102,7 @@ bool CommentsDB::parseFile(std::vector<Comment> &comments, std::vector<std::stri
 	/* parse the file we read */
 	try {
 		Wt::Json::Object result;
-		Wt::Json::parse(file, result);
+		Wt::Json::parse(Wt::WString::fromUTF8(file).toUTF8(), result);
 
 		/* parse the comments we read */
 		const Wt::Json::Array& jsonComments = readJSONValue<Wt::Json::Array>(result, "comments", Wt::Json::Array());
