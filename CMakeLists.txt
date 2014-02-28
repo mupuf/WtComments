@@ -99,8 +99,8 @@ target_link_libraries(wtcomments ${Wt_LIBRARY} ${Wt_CONNECTOR} ${Boost_LIBRARIES
 
 message("")
 message ("-- Summary --")
-message("	Website name                             : ${WEBSITE} (-DWEBSITE=...)")
-message("	Website URL                              : ${WEBSITE_URL} (-DWEBSITE_URL=...)")
+message("	Website name                             : ${WEBSITE} (-DWEBSITE='MuPuF.org')")
+message("	Website URL                              : ${WEBSITE_URL} (-DWEBSITE_URL='mupuf.org')")
 message("")
 message("	Build type                               : ${CMAKE_BUILD_TYPE} (-DCMAKE_BUILD_TYPE)")
 message("	Boost static linkage                     : ${Boost_USE_STATIC_LIBS} (-DBOOST_STATIC_LINK)")
