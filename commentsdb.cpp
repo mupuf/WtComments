@@ -91,12 +91,12 @@ bool CommentsDB::parseFile(std::vector<Comment> &comments, std::vector<std::stri
 		db.close();
 	}
 	else {
-		std::cerr << "The file '" + getDBFile() + "' cannot be opened" << std::endl;
+		std::cerr << "The file '" + getDBFile() + "' cannot be opened" << '\n';
 		return false;
 	}
 
 	if (file.size() == 0) {
-		std::cerr << "The file '" + getDBFile() + "' is empty" << std::endl;
+		std::cerr << "The file '" + getDBFile() + "' is empty" << '\n';
 		return false;
 	}
 
@@ -141,23 +141,24 @@ bool CommentsDB::saveFile(std::vector<Comment> &comments, std::vector<std::strin
 	std::ofstream db(getDBFile().c_str());
 	if (db.is_open())
 	{
-		db << "{" << std::endl;
-		db << "	\"unsubscribers\":" << std::endl;
-		db << "	[" << std::endl;
-		for (size_t i = 0; i < unsubscribers.size(); i++)
+		db << "{\n";
+
+		db << "\t\"unsubscribers\":\n";
+		db << "\t[\n";
+		size_t unsub_size = unsubscribers.size();
+		for (size_t i = 0; i < unsub_size; ++i)
 		{
 			if (i > 0) {
 				db << ",\n";
 			}
 			/* replace the " character by it's html equivalent */
 			std::string email = encodeJSONString(unsubscribers[i]);
-			db << "		{ \"email\": \"" << email << "\" }";
+			db << "\t\t{ \"email\": \"" << email << "\" }";
 		}
-		db << "\n	]," << std::endl << std::endl;
+		db << "\n\t],\n\n";
 
-		db << "	\"comments\":" << std::endl;
-		db << "	[" << std::endl;
-
+		db << "\t\"comments\":\n";
+		db << "\t[\n";
 		for (size_t i = 0; i < comments.size(); i++)
 		{
 			std::string author = comments[i].author().toUTF8();
@@ -169,7 +170,7 @@ bool CommentsDB::saveFile(std::vector<Comment> &comments, std::vector<std::strin
 			email = encodeJSONString(email);
 			msg = encodeJSONString(msg);
 
-			db << "		{ \"author\": \"" << author;
+			db << "\t\t{ \"author\": \"" << author;
 			db << "\", \"email\": \"" << email;
 			db << "\", \"date\": " << comments[i].date().toJulianDay();
 			db << ", \"time\": \"" << comments[i].time().toString();
@@ -178,13 +179,13 @@ bool CommentsDB::saveFile(std::vector<Comment> &comments, std::vector<std::strin
 			db << "\", \"sessionId\": \"" << comments[i].sessionId();
 
 			if (i < comments.size() - 1)
-				db << "\" }," << std::endl << std::endl << std::endl;
+				db << "\" },\n\n\n";
 			else
-				db << "\" }" << std::endl;
+				db << "\" }\n";
 		}
 
-		db << "	]" << std::endl;
-		db << "}" << std::endl;
+		db << "\t]\n";
+		db << "}\n";
 
 		/* TODO: find a way to fsync! */
 		db.close();
