@@ -146,11 +146,14 @@ bool CommentsDB::saveFile(std::vector<Comment> &comments, std::vector<std::strin
 		db << "	[" << std::endl;
 		for (size_t i = 0; i < unsubscribers.size(); i++)
 		{
+			if (i > 0) {
+				db << ",\n";
+			}
 			/* replace the " character by it's html equivalent */
 			std::string email = encodeJSONString(unsubscribers[i]);
-			db << "		{ \"email\": \"" << email << "\" }" << std::endl;
+			db << "		{ \"email\": \"" << email << "\" }";
 		}
-		db << "	]," << std::endl << std::endl;
+		db << "\n	]," << std::endl << std::endl;
 
 		db << "	\"comments\":" << std::endl;
 		db << "	[" << std::endl;
