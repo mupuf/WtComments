@@ -1,5 +1,4 @@
-#ifndef WTCOMMENTS_SENDEMAIL_H
-#define WTCOMMENTS_SENDEMAIL_H
+#pragma once
 
 #include <Wt/WString>
 
@@ -29,5 +28,3 @@ public:
 		  const std::vector<std::string> &recipients = std::vector<std::string>(),
 		  bool warnAdmins=true);
 };
-
-#endif // WTCOMMENTS_SENDEMAIL_H

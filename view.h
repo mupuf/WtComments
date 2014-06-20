@@ -1,5 +1,4 @@
-#ifndef WTCOMMENTS_VIEW_H
-#define WTCOMMENTS_VIEW_H
+#pragma once
 
 #include "commentsdb.h"
 
@@ -30,5 +29,3 @@ private:
 public:
 	View(const Wt::WEnvironment &env, Wt::WServer &server, std::string &url);
 };
-
-#endif // WTCOMMENTS_VIEW_H

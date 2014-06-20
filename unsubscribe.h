@@ -1,5 +1,4 @@
-#ifndef WTCOMMENTS_UNSUBSCRIBE_H
-#define WTCOMMENTS_UNSUBSCRIBE_H
+#pragma once
 
 #include "commentsdb.h"
 
@@ -20,5 +19,3 @@ private:
 public:
 	Unsubscribe(const Wt::WEnvironment &env, Wt::WServer &server, std::string &url);
 };
-
-#endif // WTCOMMENTS_UNSUBSCRIBE_H

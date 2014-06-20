@@ -1,5 +1,4 @@
-#ifndef WTCOMMENTS_CONFIG_H
-#define WTCOMMENTS_CONFIG_H
+#pragma once
 
 #include <Wt/WString>
 
@@ -35,6 +34,3 @@ private:
 	std::vector<Wt::WString> _recipients;
 	bool _isEnabled, _verbose;
 };
-
-
-#endif // WTCOMMENTS_CONFIG_H

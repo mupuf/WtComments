@@ -1,5 +1,4 @@
-#ifndef WTCOMMENTS_UTIL_H
-#define WTCOMMENTS_UTIL_H
+#pragma once
 
 #include <Wt/Json/Object>
 
@@ -21,5 +20,3 @@ type_t readJSONValue(Wt::Json::Object result, const std::string &key, type_t def
 std::string &strReplace(std::string & subj, const std::string &old, const std::string &neu);
 unsigned int countOccurencies(const std::string &str, const std::string &substr);
 std::string getExeDirectory();
-
-#endif // WTCOMMENTS_UTIL_H

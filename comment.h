@@ -1,5 +1,4 @@
-#ifndef WTCOMMENTS_COMMENT_H
-#define WTCOMMENTS_COMMENT_H
+#pragma once
 
 #include <Wt/WApplication>
 #include <Wt/WDate>
@@ -48,5 +47,3 @@ public:
 	Wt::WString sessionId() const { return _sessionId; };
 	void setSessionId(const Wt::WString &sessionId);
 };
-
-#endif // WTCOMMENTS_COMMENT_H

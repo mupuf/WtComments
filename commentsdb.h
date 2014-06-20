@@ -1,5 +1,4 @@
-#ifndef WTCOMMENTS_COMMENTSDB_H
-#define WTCOMMENTS_COMMENTSDB_H
+#pragma once
 
 #include "comment.h"
 #include "sendemail.h"
@@ -61,5 +60,3 @@ public:
 	bool postComment(const Comment &comment, Wt::WString &error);
 	bool unsubscribe(const std::string &email, Wt::WString &error);
 };
-
-#endif // WTCOMMENTS_COMMENTSDB_H
