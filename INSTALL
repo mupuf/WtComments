@@ -4,7 +4,15 @@
 Obviously you need Wt to build and run this project. Only a "minimal" set of
 features is required (no Qt, pango, SQL databases... dependencies). You might
 want to build your own minimal version if the distribution provided one
-includes too many features.
+includes too many features (which come with too many dependencies).
+
+A possible build configuration could be:
+
+    $ cmake -DCONNECTOR_HTTP=ON -DCONNECTOR_FCGI=ON \
+        -DCMAKE_INSTALL_PREFIX=/usr -DWEBUSER=http -DWEBGROUP=http \
+        -DBUILD_EXAMPLES=OFF -BUILD_TESTS=OFF -DENABLE_GM=OFF \
+        -DENABLE_HARU=OFF -DENABLE_PANGO=OFF -DENABLE_SQLITE=OFF \
+        -DENABLE_POSTGRES=OFF -DENABLE_FIREBIRD=OFF -DENABLE_QT4=OFF ..
 
 ## Building
 Once Wt is installed, you can build this project with:
@@ -15,6 +23,18 @@ Once Wt is installed, you can build this project with:
     $ cmake .. -DUSE_CON_HTTP=ON -DSEND_EMAIL=ON  # example, see below
     $ make
 
+The following configuration options are available at build time:
+   Website name : "My blog" (-DWEBSITE=...)
+   Website URL  : "http://example.com" (-DWEBSITE_URL=...)
+
+   Build type : [Debug|Release|RelWithDebInfo|MinSizeRel] (-DCMAKE_BUILD_TYPE=...)
+   Boost static linkage : [OFF|ON] (-DBOOST_STATIC_LINK=...)
+
+   Options:
+   Wt connector, use HTTP instead of FCGI   : [ON|OFF] (-DUSE_CON_HTTP=...)
+   Using a simple editor                    : [ON|OFF] (-DUSE_SIMPLE_EDITOR=...)
+   Send emails when receiving a new comment : [ON|OFF] (-DSEND_EMAIL=...)
+
 The most important compilation option is USE_CON_HTTP. If set to OFF, then
 WtComments will be accessible only through FCGI. If the option is set to ON,
 then WtComments will be accessible only through the built-in http server.
@@ -22,8 +42,8 @@ then WtComments will be accessible only through the built-in http server.
 Another option is "SEND_EMAIL". This feature is described below.
 
 ## Tiny MCE
-In order to use Wt Comments, you'll need to first download tiny MCE:
-http://www.tinymce.com/download/download.php
+If you choose not to use the simple editor, you'll need to first download tiny
+MCE: http://www.tinymce.com/download/download.php
 
 Always try the latest version first (well, the 3.*.* versions ar least as tiny
 MCE 4.0.* support in Wt is still in progress and expected for Wt 3.3.1) and
@@ -51,9 +71,9 @@ posted on your website.
 
 In order to make use of this feature, WtComments should be compiled with the
 option "-DSEND_EMAIL=ON". Then, this option needs to be enabled at run-time by
-creating the file "wt_comments_email.json" in the same directory as WtComments.
+creating the file "wt_comments_config.json" in the same directory as WtComments.
 
-Here is an example of the "wt_comments_email.json" file using a remote serveur
+Here is an example of the "wt_comments_config.json" file using a remote serveur
 to send emails:
 
 {
@@ -122,7 +142,7 @@ the option USE_CON_HTTP=OFF. If not, recompile it with this option.
 The first thing you need to do before launching WtComments is creating the user
 that will be used when running:
 
-    # useradd -Um wtcomments
+    # useradd -Ums /bin/false wtcomments
 
 You then need to create the folder /var/run/wt and changing its owner to the
 the wtcomments uid by doing so:
