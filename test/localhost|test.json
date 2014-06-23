@@ -1,0 +1,15 @@
+{
+	"unsubscribers":
+	[
+		{ "email": "test1@localhost" },
+		{ "email": "test2@localhost" }
+	],
+
+	"comments":
+	[
+		{ "author": "Test1", "email": "", "date": 2456233, "time": "17:56:10", "msg": "Lorem Lorem", "IP": "192.168.0.1", "sessionId": "JT3EC40pDpEbcm02" },
+		{ "author": "Test2", "email": "", "date": 2456235, "time": "15:30:52", "msg": "Lorem Lorem", "IP": "192.168.0.2", "sessionId": "3wdr0txLtU6saSdf" },
+		{ "author": "Test1", "email": "", "date": 2456233, "time": "17:56:10", "msg": "Lorem Lorem", "IP": "192.168.0.1", "sessionId": "JT3EC40pDpEbcm02" },
+		{ "author": "Test2", "email": "", "date": 2456235, "time": "15:30:52", "msg": "Lorem Lorem", "IP": "192.168.0.2", "sessionId": "3wdr0txLtU6saSdf" }
+	]
+}

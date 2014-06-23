@@ -1,0 +1,14 @@
+{
+        "websitename": "Test blog",
+        "websiteurl": "localhost",
+        "enable": true,
+        "verbose": false,
+        "smtp_server": "local",
+        "login": "",
+        "pwd": "",
+        "from": "wtcomments@localhost",
+        "to":
+        [
+                { "email": "user@localhost" }
+        ]
+}
