@@ -24,9 +24,6 @@ Once Wt is installed, you can build this project with:
     $ make
 
 The following configuration options are available at build time:
-   Website name : "My blog" (-DWEBSITE=...)
-   Website URL  : "http://example.com" (-DWEBSITE_URL=...)
-
    Build type : [Debug|Release|RelWithDebInfo|MinSizeRel] (-DCMAKE_BUILD_TYPE=...)
    Boost static linkage : [OFF|ON] (-DBOOST_STATIC_LINK=...)
 
@@ -65,7 +62,10 @@ folder. Please create this folder:
 
     $ mkdir db/
 
-## Emails
+## General configuration and optional emails
+Your website name and URL are the bare minimum that should be available in the
+configuration file.
+
 Wt Comments can warn you and your collaborators when a new comment has been
 posted on your website.
 
@@ -77,6 +77,8 @@ Here is an example of the "wt_comments_config.json" file using a remote serveur
 to send emails:
 
 {
+	"websitename": "My great blog",
+	"websiteurl": "my.great.blog.com",
 	"enable": true,
 	"verbose": false,
 
@@ -96,6 +98,8 @@ And here is an example using a local server (you need the 'mail' command and a
 running postfix/sendmail/qmail server):
 
 {
+	"websitename": "My great blog",
+	"websiteurl": "my.great.blog.com",
 	"enable": true,
 	"verbose": false,
 

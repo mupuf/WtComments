@@ -55,6 +55,8 @@ bool Config::readConfigFile()
 		return false;
 	}
 
+	_websiteName = readJSONValue<Wt::WString>(result, "websitename", "");
+	_websiteURL = readJSONValue<Wt::WString>(result, "websiteurl", "");
 	_isEnabled = readJSONValue<bool>(result, "enable", false);
 	_verbose = readJSONValue<bool>(result, "verbose", false);
 	_login = readJSONValue<Wt::WString>(result, "login", "");
@@ -70,12 +72,12 @@ bool Config::readConfigFile()
 	return true;
 }
 
-std::string Config::websiteName()
+Wt::WString Config::websiteName()
 {
 	return _websiteName;
 }
 
-std::string Config::websiteURL()
+Wt::WString Config::websiteURL()
 {
 	return _websiteURL;
 }

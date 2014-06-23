@@ -35,10 +35,6 @@ if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE "Release")
 endif(NOT CMAKE_BUILD_TYPE)
 
-if(NOT WEBSITE)
-	set(WEBSITE "NoName")
-endif(NOT WEBSITE)
-
 # Boost
 option(BOOST_STATIC_LINK "Use boost static linkage" OFF)
 SET(Boost_ADDITIONAL_VERSIONS
@@ -86,12 +82,6 @@ if (SEND_EMAIL)
 	endif (LIBCURL_FOUND)
 endif (SEND_EMAIL)
 
-#
-add_definitions("-DWEBSITE=\"${WEBSITE}\"")
-if (WEBSITE_URL)
-	add_definitions("-DWEBSITE_URL=\"${WEBSITE_URL}\"")
-endif (WEBSITE_URL)
-
 # Output binary
 file(GLOB wtcomments_SOURCES "*.cpp" "*.h")
 add_executable(wtcomments ${wtcomments_SOURCES})
@@ -99,9 +89,6 @@ target_link_libraries(wtcomments ${Wt_LIBRARY} ${Wt_CONNECTOR} ${Boost_LIBRARIES
 
 message("")
 message ("-- Summary --")
-message("	Website name                             : ${WEBSITE} (-DWEBSITE='MuPuF.org')")
-message("	Website URL                              : ${WEBSITE_URL} (-DWEBSITE_URL='mupuf.org')")
-message("")
 message("	Build type                               : ${CMAKE_BUILD_TYPE} (-DCMAKE_BUILD_TYPE)")
 message("	Boost static linkage                     : ${Boost_USE_STATIC_LIBS} (-DBOOST_STATIC_LINK)")
 message("")
