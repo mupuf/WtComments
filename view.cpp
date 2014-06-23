@@ -126,4 +126,3 @@ View::View(const Wt::WEnvironment& env, Wt::WServer &server, std::string &url) :
 	/* Init the DB */
 	db.reset(new CommentsDB(server, url, boost::bind(&View::drawComment, this, _1)));
 }
-

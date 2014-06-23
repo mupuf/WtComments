@@ -218,8 +218,9 @@ std::vector<std::string> CommentsDB::emailSubscribers()
 }
 
 bool CommentsDB::checkUnsubscribers(std::vector<Comment> &comments,
-		      std::vector<std::string> &unsubscribers,
-		      const std::string &email, Wt::WString &error)
+                                    std::vector<std::string> &unsubscribers,
+                                    const std::string &email,
+                                    Wt::WString &error)
 {
 	std::set<std::string> subs;
 	for (size_t i = 0; i < comments.size(); i++)
@@ -259,7 +260,8 @@ void CommentsDB::saveNewComment(const Comment &comment)
 	saveFile(comments, unsubs);
 }
 
-bool CommentsDB::validateComment(const Comment &comment, Wt::WString &error) const
+bool CommentsDB::validateComment(const Comment &comment,
+                                 Wt::WString &error) const
 {
 	if (comment.author().toUTF8().length() < 3) {
 		error = "The author name is too short (< 3 characters)";
@@ -291,8 +293,8 @@ bool CommentsDB::validateComment(const Comment &comment, Wt::WString &error) con
 	return true;
 }
 
-CommentsDB::CommentsDB(Wt::WServer &server, const Wt::WString &url, NewCommentCallback cb)
-		: _server(server)
+CommentsDB::CommentsDB(Wt::WServer &server, const Wt::WString &url,
+                       NewCommentCallback cb) : _server(server)
 {
 	std::vector<Comment> comments;
 	std::vector<std::string> unsubs;

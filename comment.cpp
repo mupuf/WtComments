@@ -1,10 +1,12 @@
 #include "comment.h"
 
 Comment::Comment(const Wt::WString &author, const Wt::WString &email,
-		const Wt::WString &msg, Wt::WDate date,
-		Wt::WTime time, const Wt::WString &clientAddress, const Wt::WString &sessionId)
-		:_author(author), _email(email), _date(date), _time(time), _msg(msg),
-			_clientAddress(clientAddress), _sessionId(sessionId)
+                 const Wt::WString &msg, Wt::WDate date,
+                 Wt::WTime time, const Wt::WString &clientAddress,
+                 const Wt::WString &sessionId):
+                 _author(author), _email(email), _date(date), _time(time),
+                 _msg(msg), _clientAddress(clientAddress),
+                 _sessionId(sessionId)
 {
 }
 

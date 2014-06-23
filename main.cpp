@@ -10,8 +10,8 @@
 #include <signal.h>
 
 std::string getValueFromEnv(const Wt::WEnvironment& env,
-		const std::string &key,
-		const std::string &defaultValue)
+                            const std::string &key,
+                            const std::string &defaultValue)
 {
 	std::vector<std::string> param = env.getParameterValues(key);
 	if (param.size() > 0) {
@@ -21,7 +21,7 @@ std::string getValueFromEnv(const Wt::WEnvironment& env,
 }
 
 Wt::WApplication *createApplication(const Wt::WEnvironment& env,
-					Wt::WServer &server)
+                                    Wt::WServer &server)
 {
 	std::string thread = getValueFromEnv(env, "url", "default");
 	std::string unsub = getValueFromEnv(env, "unsub", "0");
@@ -38,7 +38,8 @@ int main(int argc, char **argv)
 	if(conf->readConfigFile() == false) {
 		return 1;
 	}
-	std::cout << "Successfully read configuration file '" + conf->getConfigFileName() + "'\n";
+	std::cout << "Successfully read configuration file '"
+	             + conf->getConfigFileName() + "'\n";
 
 	try {
 		Wt::WServer server(argv[0]);
@@ -46,8 +47,8 @@ int main(int argc, char **argv)
 		server.setServerConfiguration(argc, argv, WTHTTP_CONFIGURATION);
 
 		server.addEntryPoint(Wt::Application,
-				     boost::bind(createApplication, _1,
-				                 boost::ref(server)));
+		                     boost::bind(createApplication, _1,
+		                                 boost::ref(server)));
 
 		/* change the CWD to the binary's folder */
 		chdir(getExeDirectory().c_str());
