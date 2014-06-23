@@ -26,6 +26,9 @@ add_definitions(-DPROJECT_ORGANIZATION="${PROJECT_ORGANIZATION}")
 add_definitions(-DPROJECT_LICENSE="${PROJECT_LICENSE}")
 add_definitions(-DPROJECT_VERSION="${PROJECT_VERSION}")
 
+# Needed from cmake version 3.0
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "/usr/share/cmake-2.8/Modules/")
+
 # Compiler flags
 if(CMAKE_COMPILER_IS_GNUCXX)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
