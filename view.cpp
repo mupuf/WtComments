@@ -109,7 +109,7 @@ View::View(const Wt::WEnvironment& env, Wt::WServer &server, std::string &url) :
 		"<div>"
 			"<h3>Send a comment</h3>" \
 			"<p><label>Author: ${author-edit}</label></p>" \
-			"<p><label>Notification email: ${email-edit}</label></p>" \
+			"<p><label>Notification email (optional): ${email-edit}</label></p>" \
 			"${text-edit}" \
 			"${send_btn}"
 		"</div>"
