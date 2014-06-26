@@ -2,6 +2,7 @@
 
 #include "util.h"
 
+#include <Wt/Utils>
 #include <Wt/WApplication>
 #include <Wt/WBreak>
 #include <Wt/WContainerWidget>
@@ -25,7 +26,7 @@
 void View::drawComment(const Comment &comment)
 {
 	Wt::WString title = Wt::WString("<span class=\"comment_author\">{1}</span> on {2} {3} said:");
-	title = title.arg(comment.author()).arg(comment.date().toString("dddd MMMM d yyyy")).arg(comment.time().toString());
+	title = title.arg(Wt::Utils::htmlEncode(comment.author())).arg(comment.date().toString("dddd MMMM d yyyy")).arg(comment.time().toString());
 
 	Wt::WPanel *panel = new Wt::WPanel();
 	panel->setTitleBar(true);
