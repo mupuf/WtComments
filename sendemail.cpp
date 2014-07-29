@@ -121,7 +121,7 @@ bool SendEmail::sendUsingLocalMail(const std::string &content)
 			std::cerr << "sendUsingLocalMail: Failed to dup2.\n";
 			return false;
 		}
-		execl("/usr/bin/mail", "/usr/bin/mail", "-t", NULL);
+		execl("/usr/bin/sendmail", "/usr/bin/sendmail", "-t", NULL);
 		std::cerr << "sendUsingLocalMail: Failed to execl.\n";
 		exit(EXIT_FAILURE);
 	}

@@ -94,8 +94,8 @@ to send emails:
 	]
 }
 
-And here is an example using a local server (you need the 'mail' command and a
-running postfix/sendmail/qmail server):
+And here is an example using a local server (you need the 'sendmail' command
+and a running postfix/sendmail/qmail server):
 
 {
 	"websitename": "My great blog",
